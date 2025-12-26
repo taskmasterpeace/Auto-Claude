@@ -6,6 +6,7 @@ export * from './dialog';
 export * from './input';
 export * from './label';
 export * from './progress';
+export * from './RecordButton';
 export * from './scroll-area';
 export * from './select';
 export * from './separator';
