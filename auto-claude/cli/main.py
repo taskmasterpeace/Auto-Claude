@@ -229,6 +229,18 @@ Environment Variables:
         help="Skip approval check and start build anyway (for debugging)",
     )
 
+    # Full automation modes
+    parser.add_argument(
+        "--full-auto",
+        action="store_true",
+        help="Full autonomous mode: skip approval, run QA, auto-merge on pass",
+    )
+    parser.add_argument(
+        "--auto-merge",
+        action="store_true",
+        help="Automatically merge when QA passes (requires isolated workspace)",
+    )
+
     # Base branch for worktree creation
     parser.add_argument(
         "--base-branch",
@@ -375,6 +387,8 @@ def main() -> None:
         skip_qa=args.skip_qa,
         force_bypass_approval=args.force,
         base_branch=args.base_branch,
+        full_auto=args.full_auto,
+        auto_merge=args.auto_merge,
     )
 
 

@@ -22,7 +22,7 @@ export function registerTaskExecutionHandlers(
    */
   ipcMain.on(
     IPC_CHANNELS.TASK_START,
-    (_, taskId: string, _options?: TaskStartOptions) => {
+    (_, taskId: string, options?: TaskStartOptions) => {
       console.warn('[TASK_START] Received request for taskId:', taskId);
       const mainWindow = getMainWindow();
       if (!mainWindow) {
@@ -101,6 +101,10 @@ export function registerTaskExecutionHandlers(
       // Get base branch from project settings for worktree creation
       const baseBranch = project.settings?.mainBranch;
 
+      // Get automation options from task metadata or passed options
+      const fullAuto = options?.fullAuto ?? task.metadata?.fullAuto ?? false;
+      const autoMerge = options?.autoMerge ?? task.metadata?.autoMerge ?? false;
+
       if (needsSpecCreation) {
         // No spec file - need to run spec_runner.py to create the spec
         const taskDescription = task.description || task.title;
@@ -129,7 +133,9 @@ export function registerTaskExecutionHandlers(
           {
             parallel: false,  // Sequential for planning phase
             workers: 1,
-            baseBranch
+            baseBranch,
+            fullAuto,
+            autoMerge
           }
         );
       } else {
@@ -144,7 +150,9 @@ export function registerTaskExecutionHandlers(
           {
             parallel: false,
             workers: 1,
-            baseBranch
+            baseBranch,
+            fullAuto,
+            autoMerge
           }
         );
       }

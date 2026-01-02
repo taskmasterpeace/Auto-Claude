@@ -61,6 +61,8 @@ def handle_build_command(
     skip_qa: bool,
     force_bypass_approval: bool,
     base_branch: str | None = None,
+    full_auto: bool = False,
+    auto_merge: bool = False,
 ) -> None:
     """
     Handle the main build command.
@@ -77,7 +79,15 @@ def handle_build_command(
         skip_qa: Skip automatic QA validation
         force_bypass_approval: Force bypass approval check
         base_branch: Base branch for worktree creation (default: current branch)
+        full_auto: Full autonomous mode (skip approval, run QA, auto-merge on pass)
+        auto_merge: Automatically merge when QA passes
     """
+    # Full-auto mode implies other automation flags
+    if full_auto:
+        force_bypass_approval = True
+        auto_continue = True
+        force_isolated = True  # Full-auto requires isolated workspace for safe merging
+        # Note: skip_qa is NOT set - full-auto runs QA and merges on pass
     # Lazy imports to avoid loading heavy modules
     from agent import run_autonomous_agent, sync_plan_to_source
     from debug import (
@@ -282,6 +292,31 @@ def handle_build_command(
                 print("\n\nQA validation paused.")
                 print(f"Resume: python auto-claude/run.py --spec {spec_dir.name} --qa")
                 qa_approved = False
+
+        # Auto-merge logic (for --full-auto or --auto-merge)
+        if (full_auto or auto_merge) and worktree_manager:
+            if qa_approved:
+                print("\n" + "=" * 70)
+                print("  🚀 AUTO-MERGE: QA PASSED - MERGING BUILD")
+                print("=" * 70)
+                from .workspace_commands import handle_merge_command
+                merge_success = handle_merge_command(
+                    project_dir, spec_dir.name, no_commit=False
+                )
+                if merge_success:
+                    print(success(f"\n{icon(Icons.SUCCESS)} Full-auto: Build merged successfully!"))
+                else:
+                    print(warning(f"\n{icon(Icons.WARNING)} Auto-merge failed. Manual merge may be required."))
+                    print(f"Run: python auto-claude/run.py --spec {spec_dir.name} --merge")
+                return  # Skip finalize_workspace - merge already handled
+            else:
+                print("\n" + "=" * 70)
+                print("  ⏸️  AUTO-MERGE SKIPPED: QA NOT APPROVED")
+                print("=" * 70)
+                print("\nBuild remains in isolated workspace for manual review.")
+                print(f"QA report: {spec_dir / 'qa_report.md'}")
+                print(f"\nTo merge manually after fixing: python auto-claude/run.py --spec {spec_dir.name} --merge")
+                # Don't return - fall through to finalize_workspace for user choice
 
         # Post-build finalization (only for isolated sequential mode)
         # This happens AFTER QA validation so the worktree still exists

@@ -397,6 +397,61 @@ For each critical/major issue, describe what the Coder Agent should do:
 
 ---
 
+## PHASE 8.5: SELF-CRITIQUE (MANDATORY BEFORE VERDICT)
+
+**STOP** before writing your final verdict. Run this self-critique checklist:
+
+### Verification Completeness Check
+
+Ask yourself:
+1. ✓/✗ Did I **actually run** every test, or did I assume they would pass?
+2. ✓/✗ Did I verify **each** acceptance criterion from spec.md individually?
+3. ✓/✗ Did I check the **browser console** for errors (if frontend)?
+4. ✓/✗ Did I verify **database migrations** exist and are applied (if applicable)?
+5. ✓/✗ Did I run the **regression check** on existing functionality?
+6. ✓/✗ Did I validate **third-party API usage** with Context7 documentation?
+
+### Evidence Check
+
+For each "PASS" in your report, verify you have:
+- ✓/✗ Actual command output (not assumed)
+- ✓/✗ Screenshots or logs (for browser verification)
+- ✓/✗ Test results with numbers (X/Y passing)
+
+### Common Oversights
+
+Check for these frequently missed issues:
+- [ ] Missing error handling for edge cases
+- [ ] Missing loading/error states in UI
+- [ ] Missing input validation
+- [ ] Missing environment variable documentation
+- [ ] Missing type safety (TypeScript any, missing types)
+- [ ] Missing accessibility attributes
+
+### If Issues Found During Self-Critique
+
+If you discover gaps in your verification:
+1. **DO NOT proceed to verdict**
+2. Go back and run the missing checks
+3. Update your QA report with actual results
+4. Return to this self-critique
+
+### Critique Result
+
+```
+SELF-CRITIQUE RESULT:
+- All acceptance criteria verified: YES/NO
+- All tests actually run: YES/NO
+- Evidence documented: YES/NO
+- Common oversights checked: YES/NO
+
+PROCEED TO VERDICT: YES/NO
+```
+
+**Only proceed to Phase 9 if all answers are YES.**
+
+---
+
 ## PHASE 9: UPDATE IMPLEMENTATION PLAN
 
 ### If APPROVED:

@@ -44,6 +44,9 @@ export interface TaskExecutionOptions {
   parallel?: boolean;
   workers?: number;
   baseBranch?: string;
+  // Automation options
+  fullAuto?: boolean;  // Skip approval, run QA, auto-merge on pass
+  autoMerge?: boolean; // Auto-merge when QA passes
 }
 
 export interface SpecCreationMetadata {

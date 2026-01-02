@@ -737,6 +737,84 @@ chmod +x init.sh
 
 ---
 
+## PHASE 5.5: SELF-CRITIQUE (MANDATORY BEFORE COMMIT)
+
+**STOP** before committing. Validate your implementation plan against this checklist:
+
+### Requirements Coverage Check
+
+For EACH requirement in spec.md, verify:
+1. ✓/✗ Is there a subtask that addresses this requirement?
+2. ✓/✗ Is the subtask specific enough to implement?
+3. ✓/✗ Is there a verification step for this requirement?
+
+```
+REQUIREMENTS COVERAGE:
+- [Requirement 1]: Covered by subtask-X-Y ✓
+- [Requirement 2]: Covered by subtask-X-Y ✓
+- [Requirement 3]: MISSING - need to add subtask ✗
+```
+
+**If any requirement is MISSING, add subtasks before proceeding.**
+
+### Dependency Validation
+
+For EACH phase, verify:
+1. ✓/✗ Are all `depends_on` phases correct?
+2. ✓/✗ Does this phase need data/APIs from another phase?
+3. ✓/✗ Can this phase actually run when its dependencies complete?
+
+```
+DEPENDENCY VALIDATION:
+- phase-1: No dependencies (correct) ✓
+- phase-2: Depends on phase-1 (needs backend API) ✓
+- phase-3: Depends on phase-1 (needs backend API) ✓
+- phase-4: Depends on phase-2,3 (needs both services) ✓
+```
+
+### Subtask Granularity Check
+
+For EACH subtask, verify:
+1. ✓/✗ Is it scoped to ONE service only?
+2. ✓/✗ Does it modify 3 or fewer files?
+3. ✓/✗ Can it be completed in one agent session?
+4. ✓/✗ Does it have clear verification?
+
+**If any subtask is too large, split it.**
+
+### Missing Steps Check
+
+Common missing steps to check for:
+- [ ] Database migrations (if models change)
+- [ ] Environment variables (if new config needed)
+- [ ] Package dependencies (if new libraries used)
+- [ ] Type definitions (if new types needed)
+- [ ] API route registration (if new endpoints)
+- [ ] Component exports (if new components)
+
+### Fix Any Issues Found
+
+If you discover problems during self-critique:
+1. Update implementation_plan.json with fixes
+2. Re-run the relevant checklist items
+3. Only proceed when all checks pass
+
+### Critique Result
+
+```
+SELF-CRITIQUE RESULT:
+- All requirements covered: YES/NO
+- Dependencies correct: YES/NO
+- Subtasks properly scoped: YES/NO
+- No missing steps: YES/NO
+
+PROCEED TO COMMIT: YES/NO
+```
+
+**Only proceed to Phase 6 if all answers are YES.**
+
+---
+
 ## PHASE 6: COMMIT IMPLEMENTATION PLAN
 
 **IMPORTANT: Branch/worktree management is handled by the Python orchestrator.**

@@ -57,7 +57,7 @@ export interface QAIssue {
 // Task Log Types - for persistent, phase-based logging
 export type TaskLogPhase = 'planning' | 'coding' | 'validation';
 export type TaskLogPhaseStatus = 'pending' | 'active' | 'completed' | 'failed';
-export type TaskLogEntryType = 'text' | 'tool_start' | 'tool_end' | 'phase_start' | 'phase_end' | 'error' | 'success' | 'info';
+export type TaskLogEntryType = 'text' | 'tool_start' | 'tool_end' | 'skill_start' | 'skill_end' | 'phase_start' | 'phase_end' | 'error' | 'success' | 'info';
 
 export interface TaskLogEntry {
   timestamp: string;
@@ -66,6 +66,8 @@ export interface TaskLogEntry {
   phase: TaskLogPhase;
   tool_name?: string;
   tool_input?: string;
+  skill_name?: string;
+  skill_args?: string;
   subtask_id?: string;
   session?: number;
   // Fields for expandable detail view
@@ -95,13 +97,18 @@ export interface TaskLogs {
 
 // Streaming markers from Python (similar to InsightsStreamChunk)
 export interface TaskLogStreamChunk {
-  type: 'text' | 'tool_start' | 'tool_end' | 'phase_start' | 'phase_end' | 'error';
+  type: 'text' | 'tool_start' | 'tool_end' | 'skill_start' | 'skill_end' | 'phase_start' | 'phase_end' | 'error';
   content?: string;
   phase?: TaskLogPhase;
   timestamp?: string;
   tool?: {
     name: string;
     input?: string;
+    success?: boolean;
+  };
+  skill?: {
+    name: string;
+    args?: string;
     success?: boolean;
   };
   subtask_id?: string;
@@ -116,6 +123,30 @@ export interface ImageAttachment {
   data?: string;        // Base64 data (for transport)
   path?: string;        // Relative path after storage
   thumbnail?: string;   // Base64 thumbnail for preview
+}
+
+// Audio recording for voice input (task descriptions)
+export interface AudioRecording {
+  id: string;           // Unique identifier (UUID)
+  filename: string;     // Generated filename (e.g., "recording-timestamp.webm")
+  mimeType: string;     // Browser's audio MIME type (e.g., 'audio/webm;codecs=opus')
+  size: number;         // Size in bytes
+  duration: number;     // Duration in seconds
+  data?: Blob;          // Audio blob (for transport to main process)
+  path?: string;        // Relative path after storage (optional)
+  transcription?: string; // Whisper transcription result
+  transcribedAt?: Date; // When transcription completed
+}
+
+// Recording state for UI
+export type RecordingState = 'idle' | 'recording' | 'processing' | 'transcribing' | 'complete' | 'error';
+
+export interface RecordingSession {
+  state: RecordingState;
+  startTime?: Date;
+  duration: number;       // Current duration in seconds
+  audioChunks: Blob[];    // Accumulated audio chunks
+  error?: string;
 }
 
 // Referenced file types for task creation (files/folders from project)
@@ -144,6 +175,7 @@ export interface TaskDraft {
   phaseThinking?: PhaseThinkingConfig;
   images: ImageAttachment[];
   referencedFiles: ReferencedFile[];
+  audioRecording?: AudioRecording;  // Optional voice recording
   requireReviewBeforeCoding?: boolean;
   savedAt: Date;
 }
@@ -206,6 +238,9 @@ export interface TaskMetadata {
   // Image attachments (screenshots, mockups, diagrams)
   attachedImages?: ImageAttachment[];
 
+  // Audio recording (voice input for task description)
+  audioRecording?: AudioRecording;
+
   // Referenced files (files/folders from project for context)
   referencedFiles?: ReferencedFile[];
 
@@ -222,6 +257,10 @@ export interface TaskMetadata {
 
   // Git/Worktree configuration
   baseBranch?: string;  // Override base branch for this task's worktree
+
+  // Automation options
+  fullAuto?: boolean;  // Skip approval, run QA, auto-merge on pass
+  autoMerge?: boolean;  // Auto-merge when QA passes
 
   // Archive status
   archivedAt?: string;  // ISO date when task was archived
@@ -438,4 +477,7 @@ export interface TaskStartOptions {
   workers?: number;
   model?: string;
   baseBranch?: string; // Override base branch for worktree creation
+  // Automation options
+  fullAuto?: boolean; // Skip approval, run QA, auto-merge on pass
+  autoMerge?: boolean; // Auto-merge when QA passes
 }

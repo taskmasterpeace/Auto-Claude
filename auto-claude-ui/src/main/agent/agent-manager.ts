@@ -196,6 +196,14 @@ export class AgentManager extends EventEmitter {
       args.push('--base-branch', options.baseBranch);
     }
 
+    // Automation options
+    if (options.fullAuto) {
+      args.push('--full-auto');
+    } else if (options.autoMerge) {
+      // Only add auto-merge if not full-auto (full-auto already implies auto-merge)
+      args.push('--auto-merge');
+    }
+
     // Note: --parallel was removed from run.py CLI - parallel execution is handled internally by the agent
     // The options.parallel and options.workers are kept for future use or logging purposes
     // Note: Model configuration is read from task_metadata.json by the Python scripts,

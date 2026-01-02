@@ -143,10 +143,27 @@ class GraphitiConfig:
 
     @classmethod
     def from_env(cls) -> "GraphitiConfig":
-        """Create config from environment variables."""
-        # Check if Graphiti is explicitly enabled
+        """Create config from environment variables.
+
+        Auto-detection behavior:
+        - If GRAPHITI_ENABLED=true/1/yes: Explicitly enabled
+        - If GRAPHITI_ENABLED=false/0/no: Explicitly disabled
+        - If GRAPHITI_ENABLED not set: Auto-detect based on available provider keys
+          (enables if any LLM+embedder provider combination is configured)
+        """
         enabled_str = os.environ.get("GRAPHITI_ENABLED", "").lower()
-        enabled = enabled_str in ("true", "1", "yes")
+
+        # Explicit enable/disable takes precedence
+        if enabled_str in ("true", "1", "yes"):
+            enabled = True
+            auto_detected = False
+        elif enabled_str in ("false", "0", "no"):
+            enabled = False
+            auto_detected = False
+        else:
+            # Auto-detect: will be determined after loading provider settings
+            enabled = None  # Placeholder - will be set after checking providers
+            auto_detected = True
 
         # Provider selection
         llm_provider = os.environ.get("GRAPHITI_LLM_PROVIDER", "openai").lower()
@@ -213,6 +230,52 @@ class GraphitiConfig:
             ollama_embedding_dim = int(os.environ.get("OLLAMA_EMBEDDING_DIM", "0"))
         except ValueError:
             ollama_embedding_dim = 0
+
+        # Auto-detection: if enabled is None, check if providers are configured
+        if enabled is None:
+            # Check for any valid LLM provider
+            has_llm_provider = any([
+                openai_api_key,  # OpenAI
+                anthropic_api_key,  # Anthropic
+                (azure_openai_api_key and azure_openai_base_url and azure_openai_llm_deployment),  # Azure
+                ollama_llm_model,  # Ollama
+                google_api_key,  # Google
+            ])
+
+            # Check for any valid embedder provider
+            has_embedder_provider = any([
+                openai_api_key,  # OpenAI
+                voyage_api_key,  # Voyage
+                (azure_openai_api_key and azure_openai_base_url and azure_openai_embedding_deployment),  # Azure
+                (ollama_embedding_model and ollama_embedding_dim),  # Ollama
+                google_api_key,  # Google
+            ])
+
+            # Auto-enable if both LLM and embedder are available
+            enabled = has_llm_provider and has_embedder_provider
+
+            # Auto-select best available provider if not explicitly set
+            if enabled and llm_provider == "openai" and not openai_api_key:
+                # Default was OpenAI but no key - pick first available
+                if anthropic_api_key:
+                    llm_provider = "anthropic"
+                elif google_api_key:
+                    llm_provider = "google"
+                elif ollama_llm_model:
+                    llm_provider = "ollama"
+                elif azure_openai_api_key and azure_openai_llm_deployment:
+                    llm_provider = "azure_openai"
+
+            if enabled and embedder_provider == "openai" and not openai_api_key:
+                # Default was OpenAI but no key - pick first available
+                if voyage_api_key:
+                    embedder_provider = "voyage"
+                elif google_api_key:
+                    embedder_provider = "google"
+                elif ollama_embedding_model and ollama_embedding_dim:
+                    embedder_provider = "ollama"
+                elif azure_openai_api_key and azure_openai_embedding_deployment:
+                    embedder_provider = "azure_openai"
 
         return cls(
             enabled=enabled,
