@@ -36,7 +36,8 @@ import type {
   TaskRecoveryOptions,
   TaskMetadata,
   TaskLogs,
-  TaskLogStreamChunk
+  TaskLogStreamChunk,
+  QAQuestion
 } from './task';
 import type {
   TerminalCreateOptions,
@@ -143,6 +144,10 @@ export interface ElectronAPI {
   // Task archive operations
   archiveTasks: (projectId: string, taskIds: string[], version?: string) => Promise<IPCResult<boolean>>;
   unarchiveTasks: (projectId: string, taskIds: string[]) => Promise<IPCResult<boolean>>;
+
+  // QA Clarifying Questions
+  getQAQuestion: (taskId: string) => Promise<IPCResult<QAQuestion | null>>;
+  submitQAAnswer: (taskId: string, answer: string) => Promise<IPCResult>;
 
   // Event listeners
   onTaskProgress: (callback: (taskId: string, plan: ImplementationPlan) => void) => () => void;
@@ -344,6 +349,64 @@ export interface ElectronAPI {
     callback: (projectId: string, error: string) => void
   ) => () => void;
 
+  // Vercel integration operations
+  vercelCheckConnection: (
+    token: string,
+    projectId: string,
+    teamId?: string
+  ) => Promise<IPCResult<{
+    connected: boolean;
+    projectName?: string;
+    teamName?: string;
+    lastDeploymentStatus?: 'READY' | 'ERROR' | 'BUILDING' | 'QUEUED' | 'CANCELED';
+    lastDeploymentUrl?: string;
+    error?: string;
+  }>>;
+  getVercelProjects: (
+    token: string,
+    teamId?: string
+  ) => Promise<IPCResult<Array<{
+    id: string;
+    name: string;
+    framework?: string;
+    latestDeployment?: {
+      readyState: string;
+      url?: string;
+      createdAt: number;
+    };
+  }>>>;
+  getVercelDeployments: (
+    token: string,
+    projectId: string,
+    teamId?: string,
+    limit?: number
+  ) => Promise<IPCResult<Array<{
+    uid: string;
+    name: string;
+    state: string;
+    url?: string;
+    createdAt: number;
+    readyAt?: number;
+    buildingAt?: number;
+    creator?: {
+      username: string;
+    };
+  }>>>;
+  getVercelProjectInfo: (
+    token: string,
+    projectId: string,
+    teamId?: string
+  ) => Promise<IPCResult<{
+    id: string;
+    name: string;
+    framework?: string;
+    latestDeployment?: {
+      readyState: string;
+      url?: string;
+      createdAt: number;
+    };
+  }>>;
+
   // Release operations
   getReleaseableVersions: (projectId: string) => Promise<IPCResult<ReleaseableVersion[]>>;
   runReleasePreflightCheck: (projectId: string, version: string) => Promise<IPCResult<ReleasePreflightStatus>>;
@@ -511,6 +574,11 @@ export interface ElectronAPI {
     callback: (specId: string, chunk: TaskLogStreamChunk) => void
   ) => () => void;
 
+  // Audio transcription operations
+  transcribeAudio: (audioBlob: Blob) => Promise<IPCResult<{ text: string }>>;
+  checkAudioModel: () => Promise<IPCResult<boolean>>;
+  downloadAudioModel: () => Promise<IPCResult<boolean>>;
+
   // File explorer operations
   listDirectory: (dirPath: string) => Promise<IPCResult<FileNode[]>>;
 
@@ -520,6 +588,15 @@ export interface ElectronAPI {
   detectMainBranch: (projectPath: string) => Promise<IPCResult<string | null>>;
   checkGitStatus: (projectPath: string) => Promise<IPCResult<GitStatus>>;
   initializeGit: (projectPath: string) => Promise<IPCResult<InitializationResult>>;
+
+  // Skill discovery operations
+  discoverSkills: (projectId: string) => Promise<IPCResult<import('./skills').SkillSuggestion[]>>;
+  createSkill: (projectId: string, suggestion: import('./skills').SkillSuggestion) => Promise<IPCResult<void>>;
+  dismissSkill: (projectId: string, skillName: string) => Promise<IPCResult<void>>;
+
+  // Log path operations
+  getLogPath: () => Promise<IPCResult<string>>;
+  openLogs: () => Promise<IPCResult>;
 }
 
 declare global {

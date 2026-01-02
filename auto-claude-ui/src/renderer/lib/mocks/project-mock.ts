@@ -98,5 +98,31 @@ export const projectMock = {
   initializeGit: async () => ({
     success: true,
     data: { success: true }
+  }),
+
+  // Skill discovery operations
+  discoverSkills: async () => ({
+    success: true,
+    data: []
+  }),
+
+  createSkill: async () => ({
+    success: true,
+    data: undefined
+  }),
+
+  dismissSkill: async () => ({
+    success: true,
+    data: undefined
+  }),
+
+  // Log path operations
+  getLogPath: async () => ({
+    success: true,
+    data: '/mock/logs/debug.log'
+  }),
+
+  openLogs: async () => ({
+    success: true
   })
 };

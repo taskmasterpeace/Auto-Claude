@@ -1,11 +1,15 @@
 import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
-import type { ExecutionPhase, TaskLogs, Subtask } from '../../shared/types';
+import { Badge } from './ui/badge';
+import { Sparkles } from 'lucide-react';
+import type { ExecutionPhase, TaskLogs, Subtask, TaskLogStreamChunk } from '../../shared/types';
 
 interface PhaseProgressIndicatorProps {
   phase?: ExecutionPhase;
   subtasks: Subtask[];
   phaseLogs?: TaskLogs | null;
+  specId?: string;
   isStuck?: boolean;
   isRunning?: boolean;
   className?: string;
@@ -32,10 +36,34 @@ export function PhaseProgressIndicator({
   phase = 'idle',
   subtasks,
   phaseLogs,
+  specId,
   isStuck = false,
   isRunning = false,
   className,
 }: PhaseProgressIndicatorProps) {
+  // Track active skill
+  const [activeSkill, setActiveSkill] = useState<string | null>(null);
+
+  // Subscribe to skill events from task log streaming
+  useEffect(() => {
+    if (!specId) return;
+
+    // Listen for stream chunks using the typed API
+    const removeListener = window.electronAPI.onTaskLogsStream((streamSpecId: string, chunk: TaskLogStreamChunk) => {
+      if (streamSpecId !== specId) return;
+
+      if (chunk.type === 'skill_start' && chunk.skill) {
+        setActiveSkill(chunk.skill.name);
+      } else if (chunk.type === 'skill_end' && chunk.skill) {
+        setActiveSkill(null);
+      }
+    });
+
+    return () => {
+      removeListener();
+    };
+  }, [specId]);
+
   // Calculate subtask-based progress (for coding phase)
   const completedSubtasks = subtasks.filter((c) => c.status === 'completed').length;
   const totalSubtasks = subtasks.length;
@@ -190,6 +218,23 @@ export function PhaseProgressIndicator({
             </span>
           )}
         </div>
+      )}
+
+      {/* Active skill indicator */}
+      {activeSkill && (
+        <motion.div
+          className="flex items-center gap-1.5 mt-2"
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Sparkles className="h-3 w-3 text-primary" />
+          <span className="text-xs text-muted-foreground">Using skill:</span>
+          <Badge variant="secondary" className="text-xs">
+            {activeSkill}
+          </Badge>
+        </motion.div>
       )}
 
       {/* Phase steps indicator (shows overall flow) */}

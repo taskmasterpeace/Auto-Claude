@@ -11,7 +11,8 @@ import type {
   InfrastructureStatus,
   GraphitiValidationResult,
   GraphitiConnectionTestResult,
-  GitStatus
+  GitStatus,
+  SkillSuggestion
 } from '../../shared/types';
 
 export interface ProjectAPI {
@@ -70,6 +71,15 @@ export interface ProjectAPI {
   detectMainBranch: (projectPath: string) => Promise<IPCResult<string | null>>;
   checkGitStatus: (projectPath: string) => Promise<IPCResult<GitStatus>>;
   initializeGit: (projectPath: string) => Promise<IPCResult<InitializationResult>>;
+
+  // Skill Discovery Operations
+  discoverSkills: (projectId: string) => Promise<IPCResult<SkillSuggestion[]>>;
+  createSkill: (projectId: string, suggestion: SkillSuggestion) => Promise<IPCResult<void>>;
+  dismissSkill: (projectId: string, skillName: string) => Promise<IPCResult<void>>;
+
+  // Log Path Operations
+  getLogPath: () => Promise<IPCResult<string>>;
+  openLogs: () => Promise<IPCResult>;
 }
 
 export const createProjectAPI = (): ProjectAPI => ({
@@ -113,6 +123,12 @@ export const createProjectAPI = (): ProjectAPI => ({
 
   getRecentMemories: (projectId: string, limit?: number) =>
     ipcRenderer.invoke(IPC_CHANNELS.CONTEXT_GET_MEMORIES, projectId, limit),
+
+  getLogPath: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.CONTEXT_GET_LOG_PATH),
+
+  openLogs: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.CONTEXT_OPEN_LOGS),
 
   // Environment Configuration
   getProjectEnv: (projectId: string): Promise<IPCResult<ProjectEnvConfig>> =>
@@ -184,5 +200,15 @@ export const createProjectAPI = (): ProjectAPI => ({
     ipcRenderer.invoke(IPC_CHANNELS.GIT_CHECK_STATUS, projectPath),
 
   initializeGit: (projectPath: string): Promise<IPCResult<InitializationResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.GIT_INITIALIZE, projectPath)
+    ipcRenderer.invoke(IPC_CHANNELS.GIT_INITIALIZE, projectPath),
+
+  // Skill Discovery Operations
+  discoverSkills: (projectId: string): Promise<IPCResult<SkillSuggestion[]>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_DISCOVER, projectId),
+
+  createSkill: (projectId: string, suggestion: SkillSuggestion): Promise<IPCResult<void>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_CREATE, projectId, suggestion),
+
+  dismissSkill: (projectId: string, skillName: string): Promise<IPCResult<void>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_DISMISS, projectId, skillName)
 });

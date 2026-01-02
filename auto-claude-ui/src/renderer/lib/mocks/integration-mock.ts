@@ -11,6 +11,7 @@ export const integrationMock = {
       linearEnabled: false,
       githubEnabled: false,
       graphitiEnabled: false,
+      vercelEnabled: false,
       enableFancyUi: true
     }
   }),
@@ -188,5 +189,29 @@ export const integrationMock = {
   getGitHubBranches: async () => ({
     success: true,
     data: ['main', 'develop', 'feature/example']
+  }),
+
+  // Vercel Integration Operations
+  vercelCheckConnection: async () => ({
+    success: true,
+    data: {
+      connected: false,
+      error: 'Not available in browser mock'
+    }
+  }),
+
+  getVercelProjects: async () => ({
+    success: true,
+    data: []
+  }),
+
+  getVercelDeployments: async () => ({
+    success: true,
+    data: []
+  }),
+
+  getVercelProjectInfo: async () => ({
+    success: false,
+    error: 'Not available in browser mock'
   })
 };
