@@ -139,7 +139,7 @@ Auto Claude automatically downloads prebuilt binaries for Windows. If prebuilts 
 
 ### Kanban Board
 
-Plan tasks and let AI handle the planning, coding, and validation — all in a visual interface. Track progress from "Planning" to "Done" while agents work autonomously.
+Plan tasks and let AI handle the planning, coding, and validation — all in a visual interface. Track progress through **Planning → In Progress → AI Review → Human Review → Done** while agents work autonomously. Tasks needing your input appear in **Awaiting Input** so you can respond when convenient.
 
 ### Agent Terminals
 
@@ -221,9 +221,12 @@ With a validated spec, coding agents execute the plan:
 1. **Planner Agent** — Creates subtask-based implementation plan
 2. **Coder Agent** — Implements subtasks one-by-one with verification
 3. **QA Reviewer** — Validates all acceptance criteria
-4. **QA Fixer** — Fixes issues in a self-healing loop (up to 50 iterations)
+4. **QA Clarifying Questions** — When uncertain, QA asks you for guidance instead of guessing
+5. **QA Fixer** — Fixes issues in a self-healing loop (up to 50 iterations)
 
 Each session runs with a fresh context window. Progress is tracked via `implementation_plan.json` and Git commits.
+
+**QA Clarifying Questions:** When the QA agent encounters ambiguity during review (e.g., "Should I add retry logic or just error messages?"), it pauses execution and moves the task to "Awaiting Input". You answer when convenient, and QA resumes with your guidance — no more autonomous guessing on unclear requirements.
 
 **Phase 3: Merge**
 
