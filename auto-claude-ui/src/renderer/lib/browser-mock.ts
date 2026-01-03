@@ -108,7 +108,50 @@ const browserMockAPI: ElectronAPI = {
   ...insightsMock,
 
   // Infrastructure & Docker Operations
-  ...infrastructureMock
+  ...infrastructureMock,
+
+  // Self-improvement Operations (nested API)
+  improvement: {
+    getMetrics: async () => ({
+      success: true,
+      data: {
+        total_tasks: 0,
+        successful_tasks: 0,
+        failed_tasks: 0,
+        avg_qa_iterations: 0,
+        total_qa_iterations: 0,
+        avg_task_duration_seconds: 0,
+        avg_planning_duration: 0,
+        avg_coding_duration: 0,
+        avg_validation_duration: 0,
+        recurring_patterns_count: 0,
+        patterns_fixed: 0,
+        cards_proposed: 0,
+        cards_approved: 0,
+        cards_applied: 0,
+        cards_dismissed: 0,
+        active_goals: 0,
+        achieved_goals: 0,
+      },
+    }),
+    getCards: async () => ({ success: true, data: [] }),
+    updateCard: async () => ({ success: true, data: {} as never }),
+    getGoals: async () => ({ success: true, data: [] }),
+    createGoal: async () => ({ success: true, data: {} as never }),
+    updateGoal: async () => ({ success: true }),
+    deleteGoal: async () => ({ success: true }),
+    getPatterns: async () => ({ success: true, data: [] }),
+    getReflections: async () => ({ success: true, data: [] }),
+    runLoop: async () => ({
+      success: true,
+      data: { status: 'awaiting_user' as const, iterations: 0 },
+    }),
+    stopLoop: () => {},
+    discover: async () => ({ success: true, data: [] }),
+    onLoopStatus: () => {},
+    onCardsUpdated: () => {},
+    onMetricsUpdated: () => {},
+  }
 };
 
 /**

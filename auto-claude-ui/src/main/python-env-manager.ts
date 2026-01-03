@@ -228,7 +228,11 @@ export class PythonEnvManager extends EventEmitter {
     }
 
     if (!existsSync(requirementsPath)) {
-      this.emit('error', 'requirements.txt not found');
+      const detailedError = `requirements.txt not found at ${requirementsPath}. ` +
+        `Auto-Claude source: ${this.autoBuildSourcePath}. ` +
+        `Check Settings > Auto Claude Path.`;
+      this.emit('error', detailedError);
+      console.error('[PythonEnvManager]', detailedError);
       return false;
     }
 
@@ -372,6 +376,13 @@ export class PythonEnvManager extends EventEmitter {
    */
   getPythonPath(): string | null {
     return this.pythonPath;
+  }
+
+  /**
+   * Get the auto-claude source path (only valid after initialization)
+   */
+  getAutoBuildSourcePath(): string | null {
+    return this.autoBuildSourcePath;
   }
 
   /**

@@ -349,6 +349,13 @@ export class TaskLogService extends EventEmitter {
             };
           }
 
+          if (entry.skill_name) {
+            streamUpdate.skill = {
+              name: entry.skill_name,
+              args: entry.skill_args
+            };
+          }
+
           this.emit('stream-chunk', specId, streamUpdate);
         }
       }

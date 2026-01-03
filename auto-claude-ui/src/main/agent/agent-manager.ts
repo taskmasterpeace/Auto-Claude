@@ -246,6 +246,38 @@ export class AgentManager extends EventEmitter {
   }
 
   /**
+   * Resume QA validation after user answered a clarifying question
+   * This is called when the QA agent paused with a question and the user has provided an answer.
+   */
+  resumeQAWithAnswer(
+    taskId: string,
+    projectPath: string,
+    specId: string
+  ): void {
+    const autoBuildSource = this.processManager.getAutoBuildSourcePath();
+
+    if (!autoBuildSource) {
+      this.emit('error', taskId, 'Auto-build source path not found. Please configure it in App Settings.');
+      return;
+    }
+
+    const runPath = path.join(autoBuildSource, 'run.py');
+
+    if (!existsSync(runPath)) {
+      this.emit('error', taskId, `Run script not found at: ${runPath}`);
+      return;
+    }
+
+    // Get combined environment variables
+    const combinedEnv = this.processManager.getCombinedEnv(projectPath);
+
+    // Use --resume-qa flag to indicate we're resuming after a user answer
+    const args = [runPath, '--spec', specId, '--project-dir', projectPath, '--resume-qa'];
+
+    this.processManager.spawnProcess(taskId, autoBuildSource, args, combinedEnv, 'qa-process');
+  }
+
+  /**
    * Start roadmap generation process
    */
   startRoadmapGeneration(

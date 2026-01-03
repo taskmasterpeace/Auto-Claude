@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import { Brain, Scale, Zap, Sliders, Sparkles, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import { Label } from './ui/label';
+import { ThinkingLevelHelp } from './ui/thinking-level-help';
 import {
   Select,
   SelectContent,
@@ -299,7 +300,10 @@ export function AgentProfileSelector({
                       </Select>
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-[10px] text-muted-foreground">Thinking</Label>
+                      <div className="flex items-center gap-1">
+                        <Label className="text-[10px] text-muted-foreground">Thinking</Label>
+                        <ThinkingLevelHelp mode="inline" className="h-3 w-3" />
+                      </div>
                       <Select
                         value={currentPhaseThinking[phase]}
                         onValueChange={(value) => handlePhaseThinkingChange(phase, value as ThinkingLevel)}
@@ -353,9 +357,12 @@ export function AgentProfileSelector({
 
           {/* Thinking Level Selection */}
           <div className="space-y-2">
-            <Label htmlFor="custom-thinking" className="text-xs font-medium text-muted-foreground">
-              Thinking Level
-            </Label>
+            <div className="flex items-center gap-1.5">
+              <Label htmlFor="custom-thinking" className="text-xs font-medium text-muted-foreground">
+                Thinking Level
+              </Label>
+              <ThinkingLevelHelp mode="inline" />
+            </div>
             <Select
               value={thinkingLevel}
               onValueChange={(value) => onThinkingLevelChange(value as ThinkingLevel)}
@@ -366,14 +373,16 @@ export function AgentProfileSelector({
               </SelectTrigger>
               <SelectContent>
                 {THINKING_LEVELS.map((level) => (
-                  <SelectItem key={level.value} value={level.value}>
-                    <div className="flex items-center gap-2">
-                      <span>{level.label}</span>
-                      <span className="text-xs text-muted-foreground">
-                        - {level.description}
-                      </span>
-                    </div>
-                  </SelectItem>
+                  <ThinkingLevelHelp key={level.value} mode="item" level={level.value}>
+                    <SelectItem value={level.value}>
+                      <div className="flex items-center gap-2">
+                        <span>{level.label}</span>
+                        <span className="text-xs text-muted-foreground">
+                          - {level.description}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  </ThinkingLevelHelp>
                 ))}
               </SelectContent>
             </Select>

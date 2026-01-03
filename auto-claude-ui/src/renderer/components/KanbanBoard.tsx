@@ -244,6 +244,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
       in_progress: [],
       ai_review: [],
       human_review: [],
+      awaiting_input: [],
       done: []
     };
 

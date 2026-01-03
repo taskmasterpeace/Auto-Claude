@@ -84,6 +84,32 @@ export const taskMock = {
 
   unwatchTaskLogs: async () => ({ success: true }),
 
+  // QA Clarifying Questions
+  getQAQuestion: async () => ({
+    success: true,
+    data: null
+  }),
+
+  submitQAAnswer: async () => ({
+    success: true
+  }),
+
+  // Audio Transcription
+  transcribeAudio: async () => ({
+    success: true,
+    data: { text: '[Browser Mock] Transcription not available' }
+  }),
+
+  checkAudioModel: async () => ({
+    success: true,
+    data: false
+  }),
+
+  downloadAudioModel: async () => ({
+    success: true,
+    data: false
+  }),
+
   // Event Listeners (no-op in browser)
   onTaskProgress: () => () => {},
   onTaskError: () => () => {},

@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, writeFileSync, readFileSync, appendFileSync } from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 
 /**
  * Debug logging - only logs when DEBUG=true or in development mode
@@ -108,6 +108,17 @@ export function initializeGit(projectPath: string): InitializationResult {
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe']
       });
+
+      // Create .gitattributes to handle line endings properly on Windows
+      const gitattributesPath = path.join(projectPath, '.gitattributes');
+      if (!existsSync(gitattributesPath)) {
+        debug('Creating .gitattributes for line ending normalization');
+        writeFileSync(
+          gitattributesPath,
+          '# Auto-normalize line endings\n* text=auto\n',
+          'utf-8'
+        );
+      }
     }
 
     // Step 2: Check if there are files to commit
@@ -122,11 +133,27 @@ export function initializeGit(projectPath: string): InitializationResult {
       debug('Adding files and creating initial commit');
 
       // Add all files
-      execSync('git add -A', {
+      // Note: LF/CRLF warnings on Windows are normal and safe to ignore
+      // Use spawnSync to have proper control over exit code vs stderr warnings
+      const addResult = spawnSync('git', ['add', '-A'], {
         cwd: projectPath,
         encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe']
+        shell: true
       });
+
+      // Only throw if git add actually failed (non-zero exit code)
+      // status === 0 or null (success) - ignore stderr warnings about LF/CRLF
+      // status > 0 (actual failure) - throw error
+      if (addResult.status && addResult.status !== 0) {
+        // Real error occurred
+        const errorMsg = addResult.stderr?.toString().trim() || addResult.error?.message || 'Unknown error';
+        // Don't throw if it's just LF/CRLF warnings
+        if (!errorMsg.includes('LF will be replaced by CRLF')) {
+          throw new Error(`git add failed: ${errorMsg}`);
+        }
+        // Otherwise, it's just warnings - continue
+        debug('git add completed with LF/CRLF warnings (safe to ignore)');
+      }
 
       // Create initial commit
       execSync('git commit -m "Initial commit" --allow-empty', {
