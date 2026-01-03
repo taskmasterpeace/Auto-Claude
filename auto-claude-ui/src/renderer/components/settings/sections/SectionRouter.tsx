@@ -6,6 +6,7 @@ import { SecuritySettings } from '../../project-settings/SecuritySettings';
 import { LinearIntegration } from '../integrations/LinearIntegration';
 import { GitHubIntegration } from '../integrations/GitHubIntegration';
 import { VercelIntegration } from '../integrations/VercelIntegration';
+import { SkillsSettings } from '../SkillsSettings';
 import { InitializationGuard } from '../common/InitializationGuard';
 import type { ProjectSettingsSection } from '../ProjectSettingsContent';
 
@@ -218,6 +219,22 @@ export function SectionRouter({
               expanded={true}
               onToggle={() => {}}
             />
+          </InitializationGuard>
+        </SettingsSection>
+      );
+
+    case 'skills':
+      return (
+        <SettingsSection
+          title="Skills"
+          description="Choose which skills agents can use in this project"
+        >
+          <InitializationGuard
+            initialized={!!project.autoBuildPath}
+            title="Skills"
+            description="Enable agent skills"
+          >
+            <SkillsSettings project={project} />
           </InitializationGuard>
         </SettingsSection>
       );

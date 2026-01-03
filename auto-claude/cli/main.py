@@ -37,6 +37,12 @@ from .utils import (
     print_banner,
     setup_environment,
 )
+from .skill_commands import (
+    handle_skill_download,
+    handle_skill_info,
+    handle_skill_list,
+    handle_skill_update,
+)
 from .workspace_commands import (
     handle_cleanup_worktrees_command,
     handle_discard_command,
@@ -72,6 +78,12 @@ Examples:
   # Status checks
   python auto-claude/run.py --spec 001 --review-status  # Check human review status
   python auto-claude/run.py --spec 001 --qa-status      # Check QA validation status
+
+  # Skill library management
+  python auto-claude/run.py --skills download           # Download skill library
+  python auto-claude/run.py --skills list               # List skills for this project
+  python auto-claude/run.py --skills list --skills-all  # List all available skills
+  python auto-claude/run.py --skills info pdf           # Show skill details
 
 Prerequisites:
   1. Create a spec first: claude /spec
@@ -278,6 +290,26 @@ Environment Variables:
         help="Maximum iterations for simple task mode (default: 30)",
     )
 
+    # Skill library commands
+    parser.add_argument(
+        "--skills",
+        type=str,
+        nargs="?",
+        const="list",
+        metavar="COMMAND",
+        help="Skill library commands: download, list, update, info <name> (default: list)",
+    )
+    parser.add_argument(
+        "--skills-all",
+        action="store_true",
+        help="With --skills list: show all skills instead of filtering by tech stack",
+    )
+    parser.add_argument(
+        "--skills-force",
+        action="store_true",
+        help="With --skills download: force re-download even if present",
+    )
+
     return parser.parse_args()
 
 
@@ -322,6 +354,23 @@ def main() -> None:
     # Handle --cleanup-worktrees command
     if args.cleanup_worktrees:
         handle_cleanup_worktrees_command(project_dir)
+        return
+
+    # Handle --skills commands
+    if args.skills:
+        cmd = args.skills.lower()
+        if cmd == "download":
+            handle_skill_download(force=args.skills_force)
+        elif cmd == "list":
+            handle_skill_list(project_dir=project_dir, show_all=args.skills_all)
+        elif cmd == "update":
+            handle_skill_update()
+        elif cmd.startswith("info "):
+            skill_name = cmd[5:].strip()
+            handle_skill_info(skill_name)
+        else:
+            # Assume it's a skill name for info
+            handle_skill_info(cmd)
         return
 
     # Handle --simple mode (Ralph Wiggum-style autonomous loops)

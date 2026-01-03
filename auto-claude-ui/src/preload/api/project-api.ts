@@ -12,7 +12,9 @@ import type {
   GraphitiValidationResult,
   GraphitiConnectionTestResult,
   GitStatus,
-  SkillSuggestion
+  SkillSuggestion,
+  SkillsLibraryResponse,
+  ProjectSkillsResponse
 } from '../../shared/types';
 
 export interface ProjectAPI {
@@ -76,6 +78,13 @@ export interface ProjectAPI {
   discoverSkills: (projectId: string) => Promise<IPCResult<SkillSuggestion[]>>;
   createSkill: (projectId: string, suggestion: SkillSuggestion) => Promise<IPCResult<void>>;
   dismissSkill: (projectId: string, skillName: string) => Promise<IPCResult<void>>;
+
+  // Skill Library Management (User-Curated Selection)
+  getSkillLibrary: () => Promise<IPCResult<SkillsLibraryResponse>>;
+  getEnabledSkills: (projectId: string) => Promise<IPCResult<string[]>>;
+  setEnabledSkills: (projectId: string, enabled: string[]) => Promise<IPCResult<void>>;
+  getProjectSkills: (projectId: string) => Promise<IPCResult<ProjectSkillsResponse>>;
+  openSkillInEditor: (projectId: string, skillName: string) => Promise<IPCResult<string>>;
 
   // Log Path Operations
   getLogPath: () => Promise<IPCResult<string>>;
@@ -210,5 +219,21 @@ export const createProjectAPI = (): ProjectAPI => ({
     ipcRenderer.invoke(IPC_CHANNELS.SKILLS_CREATE, projectId, suggestion),
 
   dismissSkill: (projectId: string, skillName: string): Promise<IPCResult<void>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_DISMISS, projectId, skillName)
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_DISMISS, projectId, skillName),
+
+  // Skill Library Management (User-Curated Selection)
+  getSkillLibrary: (): Promise<IPCResult<SkillsLibraryResponse>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_GET_LIBRARY),
+
+  getEnabledSkills: (projectId: string): Promise<IPCResult<string[]>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_GET_ENABLED, projectId),
+
+  setEnabledSkills: (projectId: string, enabled: string[]): Promise<IPCResult<void>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_SET_ENABLED, projectId, enabled),
+
+  getProjectSkills: (projectId: string): Promise<IPCResult<ProjectSkillsResponse>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_GET_PROJECT, projectId),
+
+  openSkillInEditor: (projectId: string, skillName: string): Promise<IPCResult<string>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SKILLS_OPEN_IN_EDITOR, projectId, skillName)
 });

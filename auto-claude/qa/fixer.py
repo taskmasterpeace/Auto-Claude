@@ -7,6 +7,7 @@ Runs QA fixer sessions to resolve issues identified by the reviewer.
 
 from pathlib import Path
 
+from agents.skill_manager import get_skill_context_for_agent
 from claude_agent_sdk import ClaudeSDKClient
 from debug import debug, debug_detailed, debug_error, debug_section, debug_success
 from task_logger import (
@@ -87,6 +88,14 @@ async def run_qa_fixer_session(
     # Load fixer prompt
     prompt = load_qa_fixer_prompt()
     debug_detailed("qa_fixer", "Loaded QA fixer prompt", prompt_length=len(prompt))
+
+    # Inject project-specific skills for QA fixer (if available)
+    # Derive project_dir from spec_dir (spec_dir is project/auto-claude/specs/XXX)
+    project_dir = spec_dir.parent.parent.parent
+    skill_context = get_skill_context_for_agent(project_dir, "qa_fixer")
+    if skill_context:
+        prompt += "\n\n" + skill_context
+        debug("qa_fixer", "Injected project skills for QA fixer")
 
     # Add session context - use full path so agent can find files
     prompt += f"\n\n---\n\n**Fix Session**: {fix_session}\n"

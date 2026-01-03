@@ -150,6 +150,13 @@ export const IPC_CHANNELS = {
   SKILLS_DISMISS: 'skills:dismiss',
   SKILLS_ON_USAGE: 'skills:onUsage',  // Event: skill usage tracking (main -> renderer)
 
+  // Skills library management (user-curated selection)
+  SKILLS_GET_LIBRARY: 'skills:getLibrary',      // Get all library skills by category
+  SKILLS_GET_ENABLED: 'skills:getEnabled',      // Get enabled skills for project
+  SKILLS_SET_ENABLED: 'skills:setEnabled',      // Update enabled skills list
+  SKILLS_GET_PROJECT: 'skills:getProject',      // Get project-specific skills (.claude/skills/)
+  SKILLS_OPEN_IN_EDITOR: 'skills:openInEditor', // Open skill file in editor
+
   // Audio transcription operations
   AUDIO_TRANSCRIBE: 'audio:transcribe',
   AUDIO_CHECK_MODEL: 'audio:checkModel',

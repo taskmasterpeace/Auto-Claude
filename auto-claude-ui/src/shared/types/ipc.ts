@@ -594,6 +594,13 @@ export interface ElectronAPI {
   createSkill: (projectId: string, suggestion: import('./skills').SkillSuggestion) => Promise<IPCResult<void>>;
   dismissSkill: (projectId: string, skillName: string) => Promise<IPCResult<void>>;
 
+  // Skill library management (user-curated selection)
+  getSkillLibrary: () => Promise<IPCResult<import('./skills').SkillsLibraryResponse>>;
+  getEnabledSkills: (projectId: string) => Promise<IPCResult<string[]>>;
+  setEnabledSkills: (projectId: string, enabled: string[]) => Promise<IPCResult<void>>;
+  getProjectSkills: (projectId: string) => Promise<IPCResult<import('./skills').ProjectSkillsResponse>>;
+  openSkillInEditor: (projectId: string, skillName: string) => Promise<IPCResult<string>>;
+
   // Log path operations
   getLogPath: () => Promise<IPCResult<string>>;
   openLogs: () => Promise<IPCResult>;

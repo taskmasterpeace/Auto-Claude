@@ -8,6 +8,7 @@ acceptance criteria.
 
 from pathlib import Path
 
+from agents.skill_manager import get_skill_context_for_agent
 from claude_agent_sdk import ClaudeSDKClient
 from debug import debug, debug_detailed, debug_error, debug_section, debug_success
 from prompts_pkg import get_qa_reviewer_prompt
@@ -83,6 +84,12 @@ async def run_qa_agent_session(
         prompt_length=len(prompt),
         project_dir=str(project_dir),
     )
+
+    # Inject project-specific skills for QA reviewer (if available)
+    skill_context = get_skill_context_for_agent(project_dir, "qa_reviewer")
+    if skill_context:
+        prompt += "\n\n" + skill_context
+        debug("qa_reviewer", "Injected project skills for QA reviewer")
 
     # Add session context
     prompt += f"\n\n---\n\n**QA Session**: {qa_session}\n"

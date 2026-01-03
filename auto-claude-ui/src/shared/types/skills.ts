@@ -60,3 +60,83 @@ export interface SkillUsageEvent {
   /** Optional subtask ID if skill was used during subtask execution */
   subtaskId?: string;
 }
+
+// ============================================
+// Skills Library Types (User-Curated Selection)
+// ============================================
+
+/** Categories for organizing skills in the UI */
+export type LibrarySkillCategory =
+  | 'documents'
+  | 'development'
+  | 'design'
+  | 'communication'
+  | 'scientific'
+  | 'other'
+  | 'project'; // User's custom skills
+
+/**
+ * Skill metadata from the skill library
+ */
+export interface LibrarySkill {
+  /** Skill name (identifier) */
+  name: string;
+
+  /** Human-readable description */
+  description: string;
+
+  /** Source repository (e.g., "anthropic", "k-dense-scientific") */
+  source: string;
+
+  /** Path to SKILL.md relative to skill-library/ */
+  path: string;
+
+  /** Tags for filtering */
+  tags: string[];
+
+  /** Tech stack this skill applies to */
+  techStack: string[];
+
+  /** Inferred category for UI grouping */
+  category: LibrarySkillCategory;
+}
+
+/**
+ * Skills organized by category for the UI
+ */
+export interface SkillsByCategory {
+  [category: string]: LibrarySkill[];
+}
+
+/**
+ * Response from SKILLS_GET_LIBRARY
+ */
+export interface SkillsLibraryResponse {
+  /** All skills organized by category */
+  byCategory: SkillsByCategory;
+
+  /** Total number of skills in library */
+  totalCount: number;
+
+  /** Whether the library has been downloaded */
+  hasLibrary: boolean;
+}
+
+/**
+ * Response from SKILLS_GET_PROJECT
+ */
+export interface ProjectSkillsResponse {
+  /** Custom skills in .claude/skills/ */
+  skills: LibrarySkill[];
+}
+
+/**
+ * Config for enabled skills (.auto-claude/enabled_skills.json)
+ */
+export interface EnabledSkillsConfig {
+  /** Config version */
+  version: string;
+
+  /** List of enabled skill IDs (e.g., "anthropic/pdf") */
+  enabled: string[];
+}

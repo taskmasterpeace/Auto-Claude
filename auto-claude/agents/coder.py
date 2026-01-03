@@ -56,6 +56,7 @@ from ui import (
 from .base import AUTO_CONTINUE_DELAY_SECONDS, HUMAN_INTERVENTION_FILE
 from .memory_manager import debug_memory_system_status, get_graphiti_context
 from .session import post_session_processing, run_agent_session
+from .skill_manager import get_skill_context_for_agent
 from .utils import (
     find_phase_for_subtask,
     get_commit_count,
@@ -262,6 +263,13 @@ async def run_autonomous_agent(
         # Generate appropriate prompt
         if first_run:
             prompt = generate_planner_prompt(spec_dir, project_dir)
+
+            # Inject project-specific skills for planner (if available)
+            skill_context = get_skill_context_for_agent(project_dir, "planner")
+            if skill_context:
+                prompt += "\n\n" + skill_context
+                print_status("Project skills loaded for planner", "success")
+
             first_run = False
             current_log_phase = LogPhase.PLANNING
 
@@ -321,6 +329,12 @@ async def run_autonomous_agent(
             if graphiti_context:
                 prompt += "\n\n" + graphiti_context
                 print_status("Graphiti memory context loaded", "success")
+
+            # Inject project-specific skills (if available)
+            skill_context = get_skill_context_for_agent(project_dir, "coder")
+            if skill_context:
+                prompt += "\n\n" + skill_context
+                print_status("Project skills loaded", "success")
 
             # Show what we're working on
             print(f"Working on: {highlight(subtask_id)}")

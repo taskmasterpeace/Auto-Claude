@@ -14,7 +14,8 @@ import {
   Github,
   TriangleIcon,
   Database,
-  Sparkles
+  Sparkles,
+  Wand2
 } from 'lucide-react';
 import {
   FullScreenDialog,
@@ -67,6 +68,7 @@ const appNavItems: NavItem<AppSection>[] = [
 
 const projectNavItems: NavItem<ProjectSettingsSection>[] = [
   { id: 'general', label: 'General', icon: Settings2, description: 'Auto-Build and agent config' },
+  { id: 'skills', label: 'Skills', icon: Wand2, description: 'Enable agent skills' },
   { id: 'claude', label: 'Claude Auth', icon: Key, description: 'Claude authentication' },
   { id: 'linear', label: 'Linear', icon: Zap, description: 'Linear integration' },
   { id: 'github', label: 'GitHub', icon: Github, description: 'GitHub issues sync' },

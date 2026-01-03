@@ -30,6 +30,7 @@ import { registerInsightsHandlers } from './insights-handlers';
 import { registerDockerHandlers } from './docker-handlers';
 import { registerAppUpdateHandlers } from './app-update-handlers';
 import { registerSkillDiscoveryHandlers } from './skill-discovery-handlers';
+import { registerSkillSettingsHandlers } from './skill-settings-handlers';
 import { registerAudioHandlers } from './audio-handlers';
 import { registerImprovementHandlers } from './improvement-handlers';
 import { notificationService } from '../notification-service';
@@ -108,6 +109,9 @@ export function setupIpcHandlers(
   // Skill discovery handlers
   registerSkillDiscoveryHandlers(pythonEnvManager, getMainWindow);
 
+  // Skill settings handlers (user-curated skill selection)
+  registerSkillSettingsHandlers(getMainWindow);
+
   // Audio transcription handlers
   const mainWindow = getMainWindow();
   if (mainWindow) {
@@ -141,5 +145,6 @@ export {
   registerDockerHandlers,
   registerAppUpdateHandlers,
   registerSkillDiscoveryHandlers,
+  registerSkillSettingsHandlers,
   registerImprovementHandlers
 };

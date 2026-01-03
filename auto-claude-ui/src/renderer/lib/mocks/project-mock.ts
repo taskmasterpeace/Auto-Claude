@@ -116,6 +116,36 @@ export const projectMock = {
     data: undefined
   }),
 
+  // Skill library management (user-curated selection)
+  getSkillLibrary: async () => ({
+    success: true,
+    data: {
+      byCategory: {},
+      totalCount: 0,
+      hasLibrary: false
+    }
+  }),
+
+  getEnabledSkills: async () => ({
+    success: true,
+    data: []
+  }),
+
+  setEnabledSkills: async () => ({
+    success: true,
+    data: undefined
+  }),
+
+  getProjectSkills: async () => ({
+    success: true,
+    data: { skills: [] }
+  }),
+
+  openSkillInEditor: async () => ({
+    success: true,
+    data: '/mock/path/to/skill.md'
+  }),
+
   // Log path operations
   getLogPath: async () => ({
     success: true,
