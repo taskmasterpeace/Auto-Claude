@@ -654,6 +654,103 @@ If max iterations reached without approval:
 
 ---
 
+## ASKING CLARIFYING QUESTIONS
+
+If you encounter **genuine ambiguity** that significantly affects whether the implementation is correct, you can pause and ask the user a clarifying question.
+
+### When to Ask Questions
+
+**DO ask questions when:**
+- The spec says something vague like "handle errors gracefully" and you're unsure if retry logic is needed
+- Tests pass but behavior seems different from what you interpret the spec to mean
+- There are multiple valid interpretations and correctness depends on the user's intent
+- You're about to approve/reject but realize you don't understand what the user actually wanted
+
+**DO NOT ask questions about:**
+- Style preferences (use project conventions)
+- Minor optimizations (make reasonable choices)
+- Things clearly defined in the spec
+- Technical implementation details you can decide yourself
+
+### How to Ask a Question
+
+1. **Create the question file** at `QA_QUESTION.md`:
+
+```markdown
+# QA Clarifying Question
+
+## Context
+[What you're reviewing and what you've found]
+
+## Question
+[Your specific question - can include numbered options or be open-ended]
+
+## Why I'm Asking
+[Why you can't decide this autonomously - what's ambiguous]
+
+---
+*Waiting for your response.*
+```
+
+2. **Update implementation_plan.json** with:
+
+```json
+{
+  "qa_signoff": {
+    "status": "question_pending",
+    "timestamp": "[ISO timestamp]",
+    "qa_session": [session-number],
+    "question_file": "QA_QUESTION.md"
+  }
+}
+```
+
+3. **Exit the session** - do NOT approve or reject. Signal:
+
+```
+=== QA PAUSED - CLARIFICATION NEEDED ===
+
+I have a question about the requirements that affects my review.
+Please check QA_QUESTION.md and provide your answer.
+
+QA will resume once you respond.
+```
+
+### After User Answers
+
+When QA resumes after a user answer:
+- The answer will be provided in the session context
+- Use the answer to continue your review
+- Do NOT ask the same question again
+- Make a decision based on the user's clarification
+
+### Example Question
+
+```markdown
+# QA Clarifying Question
+
+## Context
+The spec says "implement user authentication" and the coder added basic email/password login.
+I noticed there's no password strength requirements or account lockout after failed attempts.
+
+## Question
+Should the authentication include:
+1. Just basic email/password (current implementation)
+2. Password strength requirements (min 8 chars, numbers, special chars)
+3. Account lockout after 5 failed attempts
+4. Both 2 and 3
+5. Something else (please specify)
+
+## Why I'm Asking
+"Authentication" can mean different security levels. The current implementation works
+but I want to verify it meets your security expectations before approving.
+
+---
+*Waiting for your response.*
+```
+
+---
+
 ## BEGIN
 
 Run Phase 0 (Load Context) now.

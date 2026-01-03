@@ -26,6 +26,8 @@ from qa import (
     # Agent sessions
     print_qa_status,
     record_iteration,
+    # Resume after question
+    resume_qa_after_answer,
     run_qa_agent_session,
     run_qa_fixer_session,
     # Main loop
@@ -42,6 +44,7 @@ __all__ = [
     "ISSUE_SIMILARITY_THRESHOLD",
     # Main loop
     "run_qa_validation_loop",
+    "resume_qa_after_answer",
     # Criteria & status
     "load_implementation_plan",
     "save_implementation_plan",

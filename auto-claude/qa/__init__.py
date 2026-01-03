@@ -40,7 +40,7 @@ from .fixer import (
 )
 
 # Main loop
-from .loop import MAX_QA_ITERATIONS, run_qa_validation_loop
+from .loop import MAX_QA_ITERATIONS, resume_qa_after_answer, run_qa_validation_loop
 
 # Report & tracking
 from .report import (
@@ -70,6 +70,7 @@ __all__ = [
     "ISSUE_SIMILARITY_THRESHOLD",
     # Main loop
     "run_qa_validation_loop",
+    "resume_qa_after_answer",
     # Criteria & status
     "load_implementation_plan",
     "save_implementation_plan",

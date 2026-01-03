@@ -27,9 +27,13 @@ from task_logger import (
 )
 
 from .criteria import (
+    check_completion_promise,
+    get_max_iterations,
     get_qa_iteration_count,
     get_qa_signoff_status,
     is_qa_approved,
+    load_completion_promise,
+    save_promise_result,
 )
 from .fixer import run_qa_fixer_session
 from .report import (
@@ -58,7 +62,8 @@ async def run_qa_validation_loop(
     spec_dir: Path,
     model: str,
     verbose: bool = False,
-) -> bool:
+    previous_answer: str | None = None,
+) -> bool | str:
     """
     Run the full QA validation loop.
 
@@ -72,15 +77,19 @@ async def run_qa_validation_loop(
     - Iteration tracking with detailed history
     - Recurring issue detection (3+ occurrences → human escalation)
     - No-test project handling
+    - Clarifying questions (QA can pause and ask user)
 
     Args:
         project_dir: Project root directory
         spec_dir: Spec directory
         model: Claude model to use
         verbose: Whether to show detailed output
+        previous_answer: User's answer to a previous clarifying question
 
     Returns:
-        True if QA approved, False otherwise
+        True if QA approved
+        False if QA failed/max iterations
+        "awaiting_input" if QA has a clarifying question
     """
     debug_section("qa_loop", "QA Validation Loop")
     debug(
@@ -230,7 +239,10 @@ async def run_qa_validation_loop(
                 MAX_QA_ITERATIONS,
                 verbose,
                 previous_error=last_error_context,  # Pass error context for self-correction
+                previous_answer=previous_answer,  # Pass user's answer if resuming from question
             )
+            # Clear previous_answer after first iteration so it's not injected again
+            previous_answer = None
 
         iteration_duration = time_module.time() - iteration_start
         debug(
@@ -240,6 +252,47 @@ async def run_qa_validation_loop(
             duration_seconds=f"{iteration_duration:.1f}",
             response_length=len(response),
         )
+
+        # Handle QA asking a clarifying question
+        if status == "question_pending":
+            question_file = spec_dir / "QA_QUESTION.md"
+            if question_file.exists():
+                debug(
+                    "qa_loop",
+                    "QA has a clarifying question - pausing for user input",
+                    question_file=str(question_file),
+                )
+                print("\n" + "=" * 70)
+                print("  📝 QA NEEDS YOUR INPUT")
+                print("=" * 70)
+                print("\nThe QA agent has a clarifying question about the requirements.")
+                print(f"Please check: {question_file}")
+                print("\nThe task will be paused until you provide an answer.")
+
+                # Record the pause in iteration history
+                record_iteration(
+                    spec_dir,
+                    qa_iteration,
+                    "question_pending",
+                    [{"title": "Clarifying question", "type": "user_input_needed"}],
+                    iteration_duration,
+                )
+
+                # End validation phase as paused
+                if task_logger:
+                    task_logger.end_phase(
+                        LogPhase.VALIDATION,
+                        success=False,
+                        message="QA paused - awaiting user input",
+                    )
+
+                return "awaiting_input"
+            else:
+                debug_error(
+                    "qa_loop",
+                    "question_pending status but no question file found",
+                )
+                # Fall through to error handling
 
         if status == "approved":
             # Reset error tracking on success
@@ -259,6 +312,86 @@ async def run_qa_validation_loop(
             print("  ✅ QA APPROVED")
             print("=" * 70)
             print("\nAll acceptance criteria verified.")
+
+            # Check completion promise (Ralph Wiggum-style)
+            completion_promise = load_completion_promise(spec_dir)
+            if completion_promise:
+                print("\nChecking completion promise...")
+                promise_satisfied, promise_output = check_completion_promise(
+                    project_dir, spec_dir
+                )
+                save_promise_result(spec_dir, promise_satisfied, promise_output)
+
+                if not promise_satisfied:
+                    debug_warning(
+                        "qa_loop",
+                        "Completion promise not satisfied - continuing iteration",
+                        promise=completion_promise,
+                        output=promise_output[:200],
+                    )
+                    print("\n⚠️  Completion promise not yet satisfied.")
+                    print(f"   Command: {completion_promise}")
+                    print("   Continuing QA loop until promise is met...")
+
+                    # Get custom max iterations or use default
+                    custom_max = get_max_iterations(spec_dir, MAX_QA_ITERATIONS)
+                    if qa_iteration >= custom_max:
+                        print(f"\n❌ Max iterations ({custom_max}) reached.")
+                        print("   Completion promise was not satisfied.")
+                        if task_logger:
+                            task_logger.end_phase(
+                                LogPhase.VALIDATION,
+                                success=False,
+                                message=f"Completion promise not satisfied after {qa_iteration} iterations",
+                            )
+                        return False
+
+                    # Continue iterating - run fixer to try to satisfy the promise
+                    print("\nRunning QA Fixer to address completion promise...")
+                    fixer_thinking_budget = get_phase_thinking_budget(spec_dir, "qa")
+                    fix_client = create_client(
+                        project_dir,
+                        spec_dir,
+                        qa_model,
+                        agent_type="qa_fixer",
+                        max_thinking_tokens=fixer_thinking_budget,
+                    )
+
+                    # Create a special fix request for the promise failure
+                    fix_request = spec_dir / "QA_FIX_REQUEST.md"
+                    with open(fix_request, "w") as f:
+                        f.write("# Completion Promise Not Satisfied\n\n")
+                        f.write(f"The following command must exit with code 0:\n\n")
+                        f.write(f"```\n{completion_promise}\n```\n\n")
+                        f.write("## Command Output\n\n")
+                        f.write(f"```\n{promise_output[:2000]}\n```\n\n")
+                        f.write("Please fix the issues so this command passes.\n")
+
+                    async with fix_client:
+                        fix_status, fix_response = await run_qa_fixer_session(
+                            fix_client, spec_dir, qa_iteration, verbose
+                        )
+
+                    # Remove fix request after processing
+                    try:
+                        fix_request.unlink()
+                    except OSError:
+                        pass
+
+                    if fix_status == "error":
+                        print(f"\n❌ Fixer encountered error: {fix_response}")
+                        return False
+
+                    print("\n✅ Fixes applied. Re-checking completion promise...")
+                    continue  # Re-run the QA loop to check promise again
+
+                debug_success(
+                    "qa_loop",
+                    "Completion promise satisfied",
+                    promise=completion_promise,
+                )
+                print("\n✅ Completion promise satisfied!")
+
             print("The implementation is production-ready.")
             print("\nNext steps:")
             print("  1. Review the auto-claude/* branch")
@@ -511,3 +644,84 @@ async def run_qa_validation_loop(
 
     print("\nManual intervention required.")
     return False
+
+
+# =============================================================================
+# RESUME QA AFTER USER ANSWER
+# =============================================================================
+
+
+async def resume_qa_after_answer(
+    project_dir: Path,
+    spec_dir: Path,
+    model: str,
+    verbose: bool = False,
+) -> bool | str:
+    """
+    Resume QA validation after the user answered a clarifying question.
+
+    This function:
+    1. Reads the user's answer from QA_ANSWER.md
+    2. Cleans up question files
+    3. Resumes the QA loop with the answer context
+
+    Args:
+        project_dir: Project root directory
+        spec_dir: Spec directory
+        model: Claude model to use
+        verbose: Whether to show detailed output
+
+    Returns:
+        True if QA approved
+        False if QA failed/max iterations
+        "awaiting_input" if QA has another question
+    """
+    answer_file = spec_dir / "QA_ANSWER.md"
+    question_file = spec_dir / "QA_QUESTION.md"
+
+    # Check for answer file
+    if not answer_file.exists():
+        print("❌ No answer file found at QA_ANSWER.md")
+        print("   Please provide your answer before resuming.")
+        return False
+
+    # Read the user's answer
+    try:
+        answer = answer_file.read_text(encoding="utf-8")
+        debug(
+            "qa_loop",
+            "Read user's answer",
+            answer_length=len(answer),
+        )
+    except Exception as e:
+        print(f"❌ Error reading answer file: {e}")
+        return False
+
+    # Clean up question file
+    if question_file.exists():
+        try:
+            question_file.unlink()
+            debug("qa_loop", "Removed QA_QUESTION.md after reading answer")
+        except OSError:
+            pass  # Ignore if removal fails
+
+    # Clean up answer file after reading
+    try:
+        answer_file.unlink()
+        debug("qa_loop", "Removed QA_ANSWER.md after reading")
+    except OSError:
+        pass  # Ignore if removal fails
+
+    print("\n" + "=" * 70)
+    print("  RESUMING QA VALIDATION")
+    print("=" * 70)
+    print("\nYour answer has been received. Continuing QA review...")
+
+    # Continue QA loop with the answer context
+    return await run_qa_validation_loop(
+        project_dir,
+        spec_dir,
+        model,
+        verbose,
+        previous_answer=answer,
+    )

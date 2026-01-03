@@ -32,6 +32,7 @@ async def run_qa_agent_session(
     max_iterations: int,
     verbose: bool = False,
     previous_error: dict | None = None,
+    previous_answer: str | None = None,
 ) -> tuple[str, str]:
     """
     Run a QA reviewer agent session.
@@ -44,11 +45,13 @@ async def run_qa_agent_session(
         max_iterations: Maximum number of QA iterations
         verbose: Whether to show detailed output
         previous_error: Error context from previous iteration for self-correction
+        previous_answer: User's answer to a previous clarifying question
 
     Returns:
         (status, response_text) where status is:
         - "approved" if QA approves
         - "rejected" if QA finds issues
+        - "question_pending" if QA has a clarifying question
         - "error" if an error occurred
     """
     debug_section("qa_reviewer", f"QA Reviewer Session {qa_session}")
@@ -161,6 +164,36 @@ This is attempt {previous_error.get("consecutive_errors", 1) + 1}. If you fail t
         print(
             f"\n⚠️  Retry with self-correction context (attempt {previous_error.get('consecutive_errors', 1) + 1})"
         )
+
+    # Add previous answer context if user answered a clarifying question
+    if previous_answer:
+        debug(
+            "qa_reviewer",
+            "Adding user's answer to previous question",
+            answer_length=len(previous_answer),
+        )
+        prompt += f"""
+
+---
+
+## User Answer to Your Previous Question
+
+You previously asked a clarifying question. The user has responded:
+
+---
+{previous_answer}
+---
+
+**Important:**
+- Use this answer to guide your review
+- Do NOT ask the same question again
+- Make a decision (approve/reject) based on this clarification
+- If this answer reveals issues with the implementation, reject with specific fixes
+
+---
+
+"""
+        print(f"\n📝 Resuming with user's answer to clarifying question")
 
     try:
         debug("qa_reviewer", "Sending query to Claude SDK...")
@@ -311,6 +344,9 @@ This is attempt {previous_error.get("consecutive_errors", 1) + 1}. If you fail t
         elif status and status.get("status") == "rejected":
             debug_error("qa_reviewer", "QA REJECTED")
             return "rejected", response_text
+        elif status and status.get("status") == "question_pending":
+            debug("qa_reviewer", "QA has a clarifying question for the user")
+            return "question_pending", response_text
         else:
             # Agent didn't update the status properly - provide detailed error
             debug_error(
