@@ -18,6 +18,7 @@ from progress import count_subtasks
 from qa_loop import (
     is_qa_approved,
     print_qa_status,
+    resume_qa_after_answer,
     run_qa_validation_loop,
     should_run_qa,
 )
@@ -125,3 +126,58 @@ def handle_qa_command(
     except KeyboardInterrupt:
         print("\n\nQA validation paused.")
         print(f"Resume with: python auto-claude/run.py --spec {spec_dir.name} --qa")
+
+
+def handle_resume_qa_command(
+    project_dir: Path,
+    spec_dir: Path,
+    model: str,
+    verbose: bool = False,
+) -> None:
+    """
+    Handle the --resume-qa command (resume QA after user answered a clarifying question).
+
+    This is called after the user has answered a QA_QUESTION.md by providing
+    a QA_ANSWER.md file. The QA validation will resume with the answer context.
+
+    Args:
+        project_dir: Project root directory
+        spec_dir: Spec directory path
+        model: Model to use for QA
+        verbose: Enable verbose output
+    """
+    print_banner()
+    print(f"\nResuming QA validation for: {spec_dir.name}")
+    print("User answer will be provided to QA reviewer.\n")
+
+    if not validate_environment(spec_dir):
+        sys.exit(1)
+
+    # Check for answer file
+    answer_file = spec_dir / "QA_ANSWER.md"
+    if not answer_file.exists():
+        print("\n❌ No answer file found (QA_ANSWER.md).")
+        print("Please provide an answer before resuming QA.")
+        sys.exit(1)
+
+    try:
+        result = asyncio.run(
+            resume_qa_after_answer(
+                project_dir=project_dir,
+                spec_dir=spec_dir,
+                model=model,
+                verbose=verbose,
+            )
+        )
+
+        if result is True:
+            print("\n✅ QA validation passed. Ready for merge.")
+        elif result == "awaiting_input":
+            print("\n📝 QA has another question. Check QA_QUESTION.md.")
+            sys.exit(0)  # Not an error, just needs more input
+        else:
+            print("\n❌ QA validation incomplete. See reports for details.")
+            sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n\nQA validation paused.")
+        print(f"Resume with: python auto-claude/run.py --spec {spec_dir.name} --resume-qa")

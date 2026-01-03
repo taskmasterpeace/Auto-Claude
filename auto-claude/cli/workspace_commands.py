@@ -176,7 +176,10 @@ MODULE = "cli.workspace_commands"
 
 
 def handle_merge_command(
-    project_dir: Path, spec_name: str, no_commit: bool = False
+    project_dir: Path,
+    spec_name: str,
+    no_commit: bool = False,
+    model: str = "claude-sonnet-4-20250514",
 ) -> bool:
     """
     Handle the --merge command.
@@ -185,6 +188,7 @@ def handle_merge_command(
         project_dir: Project root directory
         spec_name: Name of the spec
         no_commit: If True, stage changes but don't commit
+        model: Claude model to use for Vercel fix loop
 
     Returns:
         True if merge succeeded, False otherwise
@@ -195,7 +199,78 @@ def handle_merge_command(
     if success and no_commit:
         _generate_and_save_commit_message(project_dir, spec_name)
 
+    # Run Vercel deployment monitoring if enabled and merge succeeded with commit
+    if success and not no_commit:
+        _run_vercel_monitor_if_enabled(project_dir, spec_name, model)
+
     return success
+
+
+def _run_vercel_monitor_if_enabled(
+    project_dir: Path, spec_name: str, model: str
+) -> None:
+    """
+    Run Vercel deployment monitoring if Vercel integration is enabled.
+
+    Called after a successful merge to main. Polls Vercel API for deployment
+    status and runs fix loop if build errors are detected.
+
+    Args:
+        project_dir: Project root directory
+        spec_name: Name of the spec
+        model: Claude model to use for fixing
+    """
+    import asyncio
+
+    try:
+        from integrations.vercel import is_vercel_enabled
+
+        if not is_vercel_enabled():
+            debug("workspace_commands", "Vercel integration not enabled, skipping")
+            return
+
+        # Get the commit SHA that was just merged
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=project_dir,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        commit_sha = result.stdout.strip()
+
+        # Find the spec directory
+        spec_dir = project_dir / ".auto-claude" / "specs" / spec_name
+        if not spec_dir.exists():
+            spec_dir = project_dir / "auto-claude" / "specs" / spec_name
+
+        if not spec_dir.exists():
+            debug_warning(
+                "workspace_commands",
+                f"Spec directory not found for Vercel monitoring: {spec_name}",
+            )
+            return
+
+        print("\n" + "=" * 70)
+        print("  VERCEL DEPLOYMENT MONITORING")
+        print("  Checking deployment status after merge...")
+        print("=" * 70)
+
+        from vercel import run_vercel_monitor
+
+        asyncio.run(
+            run_vercel_monitor(
+                project_dir=project_dir,
+                spec_dir=spec_dir,
+                commit_sha=commit_sha,
+                model=model,
+            )
+        )
+
+    except ImportError as e:
+        debug_warning("workspace_commands", f"Vercel module not available: {e}")
+    except Exception as e:
+        debug_warning("workspace_commands", f"Vercel monitoring failed: {e}")
 
 
 def _generate_and_save_commit_message(project_dir: Path, spec_name: str) -> None:

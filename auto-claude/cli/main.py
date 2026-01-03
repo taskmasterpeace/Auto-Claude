@@ -24,9 +24,11 @@ from .build_commands import handle_build_command
 from .followup_commands import handle_followup_command
 from .qa_commands import (
     handle_qa_command,
+    handle_resume_qa_command,
     handle_qa_status_command,
     handle_review_status_command,
 )
+from .simple_commands import handle_simple_command
 from .spec_commands import print_specs_list
 from .utils import (
     DEFAULT_MODEL,
@@ -172,6 +174,11 @@ Environment Variables:
         help="Run QA validation loop on a completed build",
     )
     parser.add_argument(
+        "--resume-qa",
+        action="store_true",
+        help="Resume QA validation after user answered a clarifying question",
+    )
+    parser.add_argument(
         "--qa-status",
         action="store_true",
         help="Show QA validation status for a spec",
@@ -249,6 +256,28 @@ Environment Variables:
         help="Base branch for creating worktrees (default: auto-detect or current branch)",
     )
 
+    # Simple task mode (Ralph Wiggum-style autonomous loops)
+    parser.add_argument(
+        "--simple",
+        type=str,
+        metavar="PROMPT",
+        default=None,
+        help="Simple task mode: iterate on a prompt until completion promise is met (skips spec/plan phases)",
+    )
+    parser.add_argument(
+        "--completion-promise",
+        type=str,
+        metavar="COMMAND",
+        default=None,
+        help="Shell command that must exit 0 for task to be complete (use && for multiple commands)",
+    )
+    parser.add_argument(
+        "--simple-max-iterations",
+        type=int,
+        default=30,
+        help="Maximum iterations for simple task mode (default: 30)",
+    )
+
     return parser.parse_args()
 
 
@@ -293,6 +322,25 @@ def main() -> None:
     # Handle --cleanup-worktrees command
     if args.cleanup_worktrees:
         handle_cleanup_worktrees_command(project_dir)
+        return
+
+    # Handle --simple mode (Ralph Wiggum-style autonomous loops)
+    if args.simple:
+        if not args.completion_promise:
+            print("\nError: --simple requires --completion-promise")
+            print("\nUsage:")
+            print('  python run.py --simple "Fix TypeScript errors" --completion-promise "npx tsc --noEmit"')
+            print('  python run.py --simple "Make tests pass" --completion-promise "npm test"')
+            sys.exit(1)
+
+        handle_simple_command(
+            project_dir=project_dir,
+            prompt=args.simple,
+            completion_promise=args.completion_promise,
+            max_iterations=args.simple_max_iterations,
+            model=model,
+            verbose=args.verbose,
+        )
         return
 
     # Require --spec if not listing
@@ -357,6 +405,15 @@ def main() -> None:
 
     if args.qa:
         handle_qa_command(
+            project_dir=project_dir,
+            spec_dir=spec_dir,
+            model=model,
+            verbose=args.verbose,
+        )
+        return
+
+    if args.resume_qa:
+        handle_resume_qa_command(
             project_dir=project_dir,
             spec_dir=spec_dir,
             model=model,
