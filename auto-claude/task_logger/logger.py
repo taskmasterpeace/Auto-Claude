@@ -522,6 +522,111 @@ class TaskLogger:
             else:
                 print(f"   [{status}]", flush=True)
 
+    def skill_start(
+        self,
+        skill_name: str,
+        args: str | None = None,
+        phase: LogPhase | None = None,
+        print_to_console: bool = True,
+    ) -> None:
+        """
+        Log the start of a skill invocation.
+
+        Args:
+            skill_name: Name of the skill (e.g., "react-component-developer")
+            args: Skill arguments/description
+            phase: Optional phase override
+            print_to_console: Whether to also print to stdout (default True)
+        """
+        phase_key = (phase or self.current_phase or LogPhase.CODING).value
+
+        # Truncate long args for display
+        display_args = args
+        if display_args and len(display_args) > 100:
+            display_args = display_args[:97] + "..."
+
+        entry = LogEntry(
+            timestamp=self._timestamp(),
+            type=LogEntryType.SKILL_START.value,
+            content=f"[Skill: {skill_name}] {display_args or ''}".strip(),
+            phase=phase_key,
+            skill_name=skill_name,
+            skill_args=display_args,
+            subtask_id=self.current_subtask,
+            session=self.current_session,
+        )
+        self._add_entry(entry)
+
+        # Emit streaming marker
+        self._emit(
+            "SKILL_START",
+            {"skill": skill_name, "args": display_args, "phase": phase_key},
+        )
+
+        # Debug log (when DEBUG=true)
+        self._debug_log(
+            f"Using skill: {skill_name}",
+            LogEntryType.INFO,
+            phase_key,
+            skill=skill_name,
+        )
+
+        if print_to_console:
+            print(f"\n[Skill: {skill_name}]", flush=True)
+
+    def skill_end(
+        self,
+        skill_name: str,
+        success: bool = True,
+        phase: LogPhase | None = None,
+        print_to_console: bool = False,
+    ) -> None:
+        """
+        Log the end of a skill invocation.
+
+        Args:
+            skill_name: Name of the skill
+            success: Whether the skill succeeded
+            phase: Optional phase override
+            print_to_console: Whether to also print to stdout (default False)
+        """
+        phase_key = (phase or self.current_phase or LogPhase.CODING).value
+
+        status = "Completed" if success else "Failed"
+        content = f"[Skill: {skill_name}] {status}"
+
+        entry = LogEntry(
+            timestamp=self._timestamp(),
+            type=LogEntryType.SKILL_END.value,
+            content=content,
+            phase=phase_key,
+            skill_name=skill_name,
+            subtask_id=self.current_subtask,
+            session=self.current_session,
+        )
+        self._add_entry(entry)
+
+        # Emit streaming marker
+        self._emit(
+            "SKILL_END",
+            {
+                "skill": skill_name,
+                "success": success,
+                "phase": phase_key,
+            },
+        )
+
+        # Debug log (when DEBUG=true)
+        self._debug_log(
+            content,
+            LogEntryType.SUCCESS if success else LogEntryType.ERROR,
+            phase_key,
+            skill=skill_name,
+        )
+
+        if print_to_console:
+            print(f"   [Skill {status}]", flush=True)
+
     def get_logs(self) -> dict:
         """Get all logs."""
         return self._data

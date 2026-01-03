@@ -20,6 +20,8 @@ class LogEntryType(str, Enum):
     TEXT = "text"
     TOOL_START = "tool_start"
     TOOL_END = "tool_end"
+    SKILL_START = "skill_start"
+    SKILL_END = "skill_end"
     PHASE_START = "phase_start"
     PHASE_END = "phase_end"
     ERROR = "error"
@@ -37,6 +39,8 @@ class LogEntry:
     phase: str
     tool_name: str | None = None
     tool_input: str | None = None
+    skill_name: str | None = None
+    skill_args: str | None = None
     subtask_id: str | None = None
     session: int | None = None
     # New fields for expandable detail view

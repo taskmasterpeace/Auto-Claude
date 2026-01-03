@@ -21,11 +21,18 @@ class StreamingLogCapture:
         self.logger = logger
         self.phase = phase
         self.current_tool: str | None = None
+        self.current_skill: str | None = None
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        # End any active skill
+        if self.current_skill:
+            self.logger.skill_end(
+                self.current_skill, success=exc_type is None, phase=self.phase
+            )
+            self.current_skill = None
         # End any active tool
         if self.current_tool:
             self.logger.tool_end(
@@ -61,6 +68,25 @@ class StreamingLogCapture:
         )
         if self.current_tool == tool_name:
             self.current_tool = None
+
+    def process_skill_start(self, skill_name: str, args: str | None = None) -> None:
+        """Process skill invocation start."""
+        # End previous skill if any
+        if self.current_skill:
+            self.logger.skill_end(self.current_skill, success=True, phase=self.phase)
+
+        self.current_skill = skill_name
+        self.logger.skill_start(skill_name, args, phase=self.phase)
+
+    def process_skill_end(
+        self,
+        skill_name: str,
+        success: bool = True,
+    ) -> None:
+        """Process skill invocation end."""
+        self.logger.skill_end(skill_name, success, phase=self.phase)
+        if self.current_skill == skill_name:
+            self.current_skill = None
 
     def process_message(
         self, msg, verbose: bool = False, capture_detail: bool = True
@@ -102,6 +128,14 @@ class StreamingLogCapture:
                                 tool_input = cmd
                             elif "path" in inp:
                                 tool_input = inp["path"]
+
+                    # Detect skill invocations
+                    if block.name == "Skill" and hasattr(block, "input") and block.input:
+                        if isinstance(block.input, dict) and "skill" in block.input:
+                            skill_name = block.input["skill"]
+                            skill_args = block.input.get("args", "")
+                            self.process_skill_start(skill_name, skill_args)
+
                     self.process_tool_start(block.name, tool_input)
 
         elif msg_type == "UserMessage" and hasattr(msg, "content"):
