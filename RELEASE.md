@@ -52,20 +52,29 @@ We provide an automated script that handles version bumping, git commits, and ta
    git push origin v2.5.6
    ```
 
-4. **Create GitHub Release:**
+4. **Automated builds will trigger:**
 
-   - Go to [GitHub Releases](https://github.com/AndyMik90/Auto-Claude/releases)
-   - Click "Draft a new release"
-   - Select the tag you just pushed (e.g., `v2.5.6`)
-   - Add release notes (describe what changed)
-   - Click "Publish release"
+   When you push the tag, the GitHub Actions workflow will automatically:
 
-5. **Automated builds will trigger:**
+   - ✅ Build the Electron app for all platforms (macOS Intel, macOS ARM64, Windows, Linux)
+   - ✅ Generate release artifacts (.dmg, .exe, .AppImage, .deb)
+   - ✅ Create `latest.yml` for auto-updater support
+   - ✅ Upload artifacts to GitHub releases
+   - ✅ Run tests (`test-on-tag.yml`)
+   - ✅ Build native module prebuilds (`build-prebuilds.yml`)
+   - ✅ Send Discord notification (`discord-release.yml`)
 
-   - ✅ Version validation workflow will verify version consistency
-   - ✅ Tests will run (`test-on-tag.yml`)
-   - ✅ Native module prebuilds will be created (`build-prebuilds.yml`)
-   - ✅ Discord notification will be sent (`discord-release.yml`)
+   You can monitor the build progress at: `https://github.com/AndyMik90/Auto-Claude/actions`
+
+5. **Wait for release to be created:**
+
+   The `release.yml` workflow will automatically create a GitHub Release with:
+   - Auto-generated changelog
+   - All platform installers
+   - SHA256 checksums
+   - VirusTotal scan results (if API key configured)
+
+   **Note:** You don't need to manually create a release - the workflow does this automatically!
 
 ## Manual Release Process (Not Recommended)
 
@@ -159,18 +168,57 @@ Use this checklist when creating a new release:
 - [ ] Run `node scripts/bump-version.js <type>`
 - [ ] Review commit and tag
 - [ ] Push commit and tag to GitHub
-- [ ] Create GitHub Release with release notes
+- [ ] Monitor GitHub Actions for workflow completion
+- [ ] Verify release was created automatically with all artifacts
+- [ ] Verify `latest.yml` is present in release assets
 - [ ] Verify version validation passed
-- [ ] Verify builds completed successfully
+- [ ] Verify builds completed successfully for all platforms
 - [ ] Test the updater shows correct version
 
 ## What Gets Released
 
-When you create a release, the following are built and published:
+When you push a tag, the following are automatically built and published:
 
-1. **Native module prebuilds** - Windows node-pty binaries
-2. **Electron app packages** - Desktop installers (triggered manually or via electron-builder)
-3. **Discord notification** - Sent to the Auto Claude community
+1. **Electron App Packages** - Built by `release.yml` workflow:
+   - macOS Intel (.dmg + .zip)
+   - macOS Apple Silicon (.dmg + .zip)
+   - Windows (.exe)
+   - Linux (.AppImage + .deb)
+   - `latest.yml` - Auto-updater metadata file
+   - `checksums.sha256` - SHA256 checksums for all artifacts
+
+2. **Native Module Prebuilds** - Built by `build-prebuilds.yml`:
+   - Windows node-pty binaries
+
+3. **Notifications**:
+   - Discord notification sent to community
+
+## Auto-Updater
+
+The `latest.yml` file is critical for the auto-updater to work properly. This file is **automatically generated** by electron-builder during the release workflow.
+
+### How Auto-Updater Works
+
+1. User runs the packaged Auto-Claude app
+2. App checks `https://github.com/AndyMik90/Auto-Claude/releases/download/v{version}/latest.yml`
+3. If a newer version exists, app downloads and installs it
+4. User is prompted to restart
+
+### Troubleshooting Auto-Updater 404 Errors
+
+If users see a 404 error when checking for updates:
+
+1. **Verify the release workflow ran:**
+   - Go to https://github.com/AndyMik90/Auto-Claude/actions
+   - Check that `release.yml` completed successfully
+
+2. **Verify `latest.yml` was uploaded:**
+   - Go to the release page (e.g., https://github.com/AndyMik90/Auto-Claude/releases/tag/v2.6.0)
+   - Confirm `latest.yml` is listed in the assets
+
+3. **If missing:**
+   - Re-run the release workflow manually from GitHub Actions
+   - Or delete the release and tag, then re-create them following the automated process above
 
 ## Version Numbering
 
