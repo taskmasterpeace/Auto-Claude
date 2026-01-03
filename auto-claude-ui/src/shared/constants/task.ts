@@ -13,6 +13,7 @@ export const TASK_STATUS_COLUMNS = [
   'in_progress',
   'ai_review',
   'human_review',
+  'awaiting_input',
   'done'
 ] as const;
 
@@ -22,6 +23,7 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
   in_progress: 'In Progress',
   ai_review: 'AI Review',
   human_review: 'Human Review',
+  awaiting_input: 'Awaiting Input',
   done: 'Done'
 };
 
@@ -31,6 +33,7 @@ export const TASK_STATUS_COLORS: Record<string, string> = {
   in_progress: 'bg-info/10 text-info',
   ai_review: 'bg-warning/10 text-warning',
   human_review: 'bg-purple-500/10 text-purple-400',
+  awaiting_input: 'bg-warning/10 text-warning',
   done: 'bg-success/10 text-success'
 };
 
@@ -208,3 +211,27 @@ export const ALLOWED_IMAGE_TYPES_DISPLAY = 'PNG, JPEG, GIF, WebP, SVG';
 
 // Attachments directory name within spec folder
 export const ATTACHMENTS_DIR = 'attachments';
+
+// ============================================
+// Audio Recording Constants
+// ============================================
+
+// Maximum audio recording duration (5 minutes)
+export const MAX_AUDIO_DURATION = 5 * 60; // seconds
+
+// Maximum audio file size (50 MB - covers 5 min at high quality)
+export const MAX_AUDIO_SIZE = 50 * 1024 * 1024;
+
+// Preferred audio MIME types (browser compatibility)
+export const PREFERRED_AUDIO_TYPES = [
+  'audio/webm;codecs=opus',  // Best quality, widely supported
+  'audio/webm',
+  'audio/mp4',
+  'audio/wav'
+] as const;
+
+// Audio directory name within spec folder
+export const AUDIO_DIR = 'audio';
+
+// Whisper model to use
+export const WHISPER_MODEL = 'base'; // Best accuracy/speed balance (142MB)

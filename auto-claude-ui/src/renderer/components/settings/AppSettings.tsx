@@ -12,6 +12,7 @@ import {
   Settings2,
   Zap,
   Github,
+  TriangleIcon,
   Database,
   Sparkles
 } from 'lucide-react';
@@ -69,6 +70,7 @@ const projectNavItems: NavItem<ProjectSettingsSection>[] = [
   { id: 'claude', label: 'Claude Auth', icon: Key, description: 'Claude authentication' },
   { id: 'linear', label: 'Linear', icon: Zap, description: 'Linear integration' },
   { id: 'github', label: 'GitHub', icon: Github, description: 'GitHub issues sync' },
+  { id: 'vercel', label: 'Vercel', icon: TriangleIcon, description: 'Vercel build monitoring' },
   { id: 'memory', label: 'Memory', icon: Database, description: 'Graphiti memory backend' }
 ];
 

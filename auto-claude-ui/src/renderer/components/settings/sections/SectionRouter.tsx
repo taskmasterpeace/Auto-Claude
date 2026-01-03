@@ -5,6 +5,7 @@ import { EnvironmentSettings } from '../../project-settings/EnvironmentSettings'
 import { SecuritySettings } from '../../project-settings/SecuritySettings';
 import { LinearIntegration } from '../integrations/LinearIntegration';
 import { GitHubIntegration } from '../integrations/GitHubIntegration';
+import { VercelIntegration } from '../integrations/VercelIntegration';
 import { InitializationGuard } from '../common/InitializationGuard';
 import type { ProjectSettingsSection } from '../ProjectSettingsContent';
 
@@ -170,6 +171,25 @@ export function SectionRouter({
               gitHubConnectionStatus={gitHubConnectionStatus}
               isCheckingGitHub={isCheckingGitHub}
               projectPath={project.path}
+            />
+          </InitializationGuard>
+        </SettingsSection>
+      );
+
+    case 'vercel':
+      return (
+        <SettingsSection
+          title="Vercel Integration"
+          description="Auto-detect and fix Vercel build errors"
+        >
+          <InitializationGuard
+            initialized={!!project.autoBuildPath}
+            title="Vercel Integration"
+            description="Monitor and fix Vercel deployments"
+          >
+            <VercelIntegration
+              envConfig={envConfig}
+              updateEnvConfig={updateEnvConfig}
             />
           </InitializationGuard>
         </SettingsSection>

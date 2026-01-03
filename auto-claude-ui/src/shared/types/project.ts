@@ -314,6 +314,13 @@ export interface ProjectEnvConfig {
   githubRepo?: string; // Format: owner/repo
   githubAutoSync?: boolean; // Auto-sync issues on project load
 
+  // Vercel Integration
+  vercelEnabled: boolean;
+  vercelToken?: string;
+  vercelProjectId?: string;
+  vercelTeamId?: string; // Optional - only for team accounts
+  vercelAutoFix?: boolean; // Auto-commit and push fixes without approval
+
   // Git/Worktree Settings
   defaultBranch?: string; // Base branch for worktree creation (e.g., 'main', 'develop')
 

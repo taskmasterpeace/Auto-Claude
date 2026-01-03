@@ -66,6 +66,19 @@ export function registerEnvHandlers(
     if (config.defaultBranch !== undefined) {
       existingVars['DEFAULT_BRANCH'] = config.defaultBranch;
     }
+    // Vercel Integration
+    if (config.vercelToken !== undefined) {
+      existingVars['VERCEL_TOKEN'] = config.vercelToken;
+    }
+    if (config.vercelProjectId !== undefined) {
+      existingVars['VERCEL_PROJECT_ID'] = config.vercelProjectId;
+    }
+    if (config.vercelTeamId !== undefined) {
+      existingVars['VERCEL_TEAM_ID'] = config.vercelTeamId;
+    }
+    if (config.vercelAutoFix !== undefined) {
+      existingVars['VERCEL_AUTO_FIX'] = config.vercelAutoFix ? 'true' : 'false';
+    }
     if (config.graphitiEnabled !== undefined) {
       existingVars['GRAPHITI_ENABLED'] = config.graphitiEnabled ? 'true' : 'false';
     }
@@ -156,6 +169,17 @@ ${existingVars['GITHUB_AUTO_SYNC'] !== undefined ? `GITHUB_AUTO_SYNC=${existingV
 ${existingVars['DEFAULT_BRANCH'] ? `DEFAULT_BRANCH=${existingVars['DEFAULT_BRANCH']}` : '# DEFAULT_BRANCH=main'}
 
 # =============================================================================
+# VERCEL INTEGRATION (OPTIONAL)
+# =============================================================================
+# Enable Vercel integration for automatic build error detection and fixing.
+# Get your token from: https://vercel.com/account/tokens
+# Get your project ID from: Vercel Dashboard > Project > Settings > General
+${existingVars['VERCEL_TOKEN'] ? `VERCEL_TOKEN=${existingVars['VERCEL_TOKEN']}` : '# VERCEL_TOKEN='}
+${existingVars['VERCEL_PROJECT_ID'] ? `VERCEL_PROJECT_ID=${existingVars['VERCEL_PROJECT_ID']}` : '# VERCEL_PROJECT_ID=prj_xxxxxxxx'}
+${existingVars['VERCEL_TEAM_ID'] ? `VERCEL_TEAM_ID=${existingVars['VERCEL_TEAM_ID']}` : '# VERCEL_TEAM_ID=team_xxxxxxxx'}
+${existingVars['VERCEL_AUTO_FIX'] !== undefined ? `VERCEL_AUTO_FIX=${existingVars['VERCEL_AUTO_FIX']}` : '# VERCEL_AUTO_FIX=false'}
+
+# =============================================================================
 # UI SETTINGS (OPTIONAL)
 # =============================================================================
 ${existingVars['ENABLE_FANCY_UI'] !== undefined ? `ENABLE_FANCY_UI=${existingVars['ENABLE_FANCY_UI']}` : '# ENABLE_FANCY_UI=true'}
@@ -240,6 +264,7 @@ ${existingVars['GRAPHITI_DATABASE'] ? `GRAPHITI_DATABASE=${existingVars['GRAPHIT
         claudeAuthStatus: 'not_configured',
         linearEnabled: false,
         githubEnabled: false,
+        vercelEnabled: false,
         graphitiEnabled: false,
         enableFancyUi: true,
         claudeTokenIsGlobal: false,
@@ -301,6 +326,21 @@ ${existingVars['GRAPHITI_DATABASE'] ? `GRAPHITI_DATABASE=${existingVars['GRAPHIT
       // Git/Worktree config
       if (vars['DEFAULT_BRANCH']) {
         config.defaultBranch = vars['DEFAULT_BRANCH'];
+      }
+
+      // Vercel config
+      if (vars['VERCEL_TOKEN']) {
+        config.vercelEnabled = true;
+        config.vercelToken = vars['VERCEL_TOKEN'];
+      }
+      if (vars['VERCEL_PROJECT_ID']) {
+        config.vercelProjectId = vars['VERCEL_PROJECT_ID'];
+      }
+      if (vars['VERCEL_TEAM_ID']) {
+        config.vercelTeamId = vars['VERCEL_TEAM_ID'];
+      }
+      if (vars['VERCEL_AUTO_FIX']?.toLowerCase() === 'true') {
+        config.vercelAutoFix = true;
       }
 
       if (vars['GRAPHITI_ENABLED']?.toLowerCase() === 'true') {

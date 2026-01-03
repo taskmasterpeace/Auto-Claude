@@ -4,14 +4,24 @@
 
 import type { ThinkingLevel, PhaseModelConfig, PhaseThinkingConfig } from './settings';
 
-export type TaskStatus = 'backlog' | 'in_progress' | 'ai_review' | 'human_review' | 'done';
+export type TaskStatus = 'backlog' | 'in_progress' | 'ai_review' | 'human_review' | 'awaiting_input' | 'done';
 
-// Reason why a task is in human_review status
+// Reason why a task is in human_review or awaiting_input status
 // - 'completed': All subtasks done and QA passed, ready for final approval/merge
 // - 'errors': Subtasks failed during execution
 // - 'qa_rejected': QA found issues that need fixing
 // - 'plan_review': Spec/plan created and awaiting approval before coding starts
-export type ReviewReason = 'completed' | 'errors' | 'qa_rejected' | 'plan_review';
+// - 'qa_question': QA agent has a clarifying question for the user
+export type ReviewReason = 'completed' | 'errors' | 'qa_rejected' | 'plan_review' | 'qa_question';
+
+// QA Clarifying Question - when QA needs user input
+export interface QAQuestion {
+  context: string;       // What the QA agent is reviewing
+  question: string;      // The actual question
+  reason: string;        // Why the agent can't decide autonomously
+  options?: string[];    // Optional predefined answer options
+  timestamp: string;     // When the question was asked
+}
 
 export type SubtaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
 
@@ -262,6 +272,13 @@ export interface TaskMetadata {
   fullAuto?: boolean;  // Skip approval, run QA, auto-merge on pass
   autoMerge?: boolean;  // Auto-merge when QA passes
 
+  // Completion promise (Ralph Wiggum-style autonomous loops)
+  completionPromise?: string;  // Shell command(s) that must exit 0 (use && for multiple)
+  maxIterations?: number;  // Max QA iterations before giving up (default: 50)
+
+  // Simple task mode - skip spec/plan phases
+  isSimpleTask?: boolean;  // True when using simple task mode
+
   // Archive status
   archivedAt?: string;  // ISO date when task was archived
   archivedInVersion?: string;  // Version in which task was archived (from changelog)
@@ -480,4 +497,30 @@ export interface TaskStartOptions {
   // Automation options
   fullAuto?: boolean; // Skip approval, run QA, auto-merge on pass
   autoMerge?: boolean; // Auto-merge when QA passes
+  // Completion promise (Ralph Wiggum-style)
+  completionPromise?: string; // Shell command that must exit 0
+  maxIterations?: number; // Max iterations before giving up
+}
+
+// Completion Promise Types (Ralph Wiggum-style autonomous loops)
+export type CompletionCriterionType = 'command' | 'file_contains' | 'file_exists' | 'qa_approved';
+
+export interface CompletionCriterion {
+  type: CompletionCriterionType;
+  value: string; // Command to run, or pattern to match
+  description: string;
+}
+
+export interface CompletionPromise {
+  criteria: CompletionCriterion[];
+  maxIterations?: number;
+  timeoutMinutes?: number;
+}
+
+// Simple Task Mode - skip spec/plan phases for mechanical tasks
+export interface SimpleTaskConfig {
+  prompt: string;
+  completionPromise: string; // Shell command that must exit 0
+  maxIterations: number;
+  model?: ModelType;
 }

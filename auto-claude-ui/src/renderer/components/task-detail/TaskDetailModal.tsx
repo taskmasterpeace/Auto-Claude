@@ -32,6 +32,7 @@ import { calculateProgress } from '../../lib/utils';
 import { startTask, stopTask, submitReview, recoverStuckTask, deleteTask } from '../../stores/task-store';
 import { TASK_STATUS_LABELS } from '../../../shared/constants';
 import { TaskEditDialog } from '../TaskEditDialog';
+import { QAQuestionCard } from '../QAQuestionCard';
 import { useTaskDetail } from './hooks/useTaskDetail';
 import { TaskMetadata } from './TaskMetadata';
 import { TaskWarnings } from './TaskWarnings';
@@ -272,7 +273,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                       ) : (
                         <>
                           <Badge
-                            variant={task.status === 'done' ? 'success' : task.status === 'human_review' ? 'purple' : task.status === 'in_progress' ? 'info' : 'secondary'}
+                            variant={task.status === 'done' ? 'success' : task.status === 'human_review' ? 'purple' : task.status === 'awaiting_input' ? 'warning' : task.status === 'in_progress' ? 'info' : 'secondary'}
                             className={cn('text-xs', (task.status === 'in_progress' && !state.isStuck) && 'status-running')}
                           >
                             {TASK_STATUS_LABELS[task.status]}
@@ -285,6 +286,11 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                               {task.reviewReason === 'completed' ? 'Completed' :
                                task.reviewReason === 'errors' ? 'Has Errors' :
                                task.reviewReason === 'plan_review' ? 'Approve Plan' : 'QA Issues'}
+                            </Badge>
+                          )}
+                          {task.status === 'awaiting_input' && task.reviewReason === 'qa_question' && (
+                            <Badge variant="warning" className="text-xs">
+                              QA Question
                             </Badge>
                           )}
                         </>
@@ -372,6 +378,15 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                 <TabsContent value="overview" className="flex-1 min-h-0 overflow-hidden mt-0">
                   <ScrollArea className="h-full">
                     <div className="p-5 space-y-5">
+                      {/* QA Clarifying Question - show prominently when awaiting input */}
+                      {state.needsQAAnswer && state.qaQuestion && (
+                        <QAQuestionCard
+                          question={state.qaQuestion}
+                          onAnswer={state.submitQAAnswer}
+                          isSubmitting={state.isSubmittingAnswer}
+                        />
+                      )}
+
                       {/* Metadata */}
                       <TaskMetadata task={task} />
 

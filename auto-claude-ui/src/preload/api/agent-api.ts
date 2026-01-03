@@ -8,6 +8,7 @@
  * - Changelog operations
  * - Linear integration
  * - GitHub integration
+ * - Vercel integration
  * - Auto-build source updates
  * - Shell operations
  */
@@ -18,6 +19,7 @@ import { createInsightsAPI, InsightsAPI } from './modules/insights-api';
 import { createChangelogAPI, ChangelogAPI } from './modules/changelog-api';
 import { createLinearAPI, LinearAPI } from './modules/linear-api';
 import { createGitHubAPI, GitHubAPI } from './modules/github-api';
+import { createVercelAPI, VercelAPI } from './modules/vercel-api';
 import { createAutoBuildAPI, AutoBuildAPI } from './modules/autobuild-api';
 import { createShellAPI, ShellAPI } from './modules/shell-api';
 
@@ -32,6 +34,7 @@ export interface AgentAPI extends
   ChangelogAPI,
   LinearAPI,
   GitHubAPI,
+  VercelAPI,
   AutoBuildAPI,
   ShellAPI {}
 
@@ -47,6 +50,7 @@ export const createAgentAPI = (): AgentAPI => {
   const changelogAPI = createChangelogAPI();
   const linearAPI = createLinearAPI();
   const githubAPI = createGitHubAPI();
+  const vercelAPI = createVercelAPI();
   const autobuildAPI = createAutoBuildAPI();
   const shellAPI = createShellAPI();
 
@@ -69,6 +73,9 @@ export const createAgentAPI = (): AgentAPI => {
     // GitHub Integration API
     ...githubAPI,
 
+    // Vercel Integration API
+    ...vercelAPI,
+
     // Auto-Build Source Update API
     ...autobuildAPI,
 
@@ -85,6 +92,7 @@ export type {
   ChangelogAPI,
   LinearAPI,
   GitHubAPI,
+  VercelAPI,
   AutoBuildAPI,
   ShellAPI
 };

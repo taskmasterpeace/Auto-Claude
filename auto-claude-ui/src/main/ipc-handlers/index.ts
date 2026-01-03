@@ -22,12 +22,16 @@ import { registerContextHandlers } from './context-handlers';
 import { registerEnvHandlers } from './env-handlers';
 import { registerLinearHandlers } from './linear-handlers';
 import { registerGithubHandlers } from './github-handlers';
+import { registerVercelHandlers } from './vercel-handlers';
 import { registerAutobuildSourceHandlers } from './autobuild-source-handlers';
 import { registerIdeationHandlers } from './ideation-handlers';
 import { registerChangelogHandlers } from './changelog-handlers';
 import { registerInsightsHandlers } from './insights-handlers';
 import { registerDockerHandlers } from './docker-handlers';
 import { registerAppUpdateHandlers } from './app-update-handlers';
+import { registerSkillDiscoveryHandlers } from './skill-discovery-handlers';
+import { registerAudioHandlers } from './audio-handlers';
+import { registerImprovementHandlers } from './improvement-handlers';
 import { notificationService } from '../notification-service';
 
 /**
@@ -80,6 +84,9 @@ export function setupIpcHandlers(
   // GitHub integration handlers
   registerGithubHandlers(agentManager, getMainWindow);
 
+  // Vercel integration handlers
+  registerVercelHandlers(getMainWindow);
+
   // Auto-build source update handlers
   registerAutobuildSourceHandlers(getMainWindow);
 
@@ -98,6 +105,18 @@ export function setupIpcHandlers(
   // App auto-update handlers
   registerAppUpdateHandlers();
 
+  // Skill discovery handlers
+  registerSkillDiscoveryHandlers(pythonEnvManager, getMainWindow);
+
+  // Audio transcription handlers
+  const mainWindow = getMainWindow();
+  if (mainWindow) {
+    registerAudioHandlers(mainWindow);
+  }
+
+  // Self-improvement handlers
+  registerImprovementHandlers(getMainWindow);
+
   console.warn('[IPC] All handler modules registered successfully');
 }
 
@@ -114,10 +133,13 @@ export {
   registerEnvHandlers,
   registerLinearHandlers,
   registerGithubHandlers,
+  registerVercelHandlers,
   registerAutobuildSourceHandlers,
   registerIdeationHandlers,
   registerChangelogHandlers,
   registerInsightsHandlers,
   registerDockerHandlers,
-  registerAppUpdateHandlers
+  registerAppUpdateHandlers,
+  registerSkillDiscoveryHandlers,
+  registerImprovementHandlers
 };

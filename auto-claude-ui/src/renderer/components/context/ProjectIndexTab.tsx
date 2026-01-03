@@ -1,4 +1,4 @@
-import { RefreshCw, AlertCircle, FolderTree } from 'lucide-react';
+import { RefreshCw, AlertCircle, FolderTree, FolderOpen } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -51,11 +51,37 @@ export function ProjectIndexTab({
 
         {/* Error state */}
         {indexError && (
-          <div className="flex items-center gap-3 p-4 rounded-lg bg-destructive/10 text-destructive">
-            <AlertCircle className="h-5 w-5 shrink-0" />
-            <div>
-              <p className="font-medium">Failed to load project index</p>
-              <p className="text-sm opacity-80">{indexError}</p>
+          <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 space-y-3">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
+              <div className="flex-1 space-y-2">
+                <p className="font-medium text-destructive">Failed to load project index</p>
+                <p className="text-sm text-destructive/80 leading-relaxed">{indexError}</p>
+                <div className="text-xs text-muted-foreground bg-background/50 p-2 rounded border">
+                  <p className="font-medium mb-1">Troubleshooting:</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    <li>Make sure the .auto-claude directory exists in your project</li>
+                    <li>Try clicking "Analyze Project" to generate the index</li>
+                    <li>Check the log file for detailed error information</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={onRefresh} size="sm" variant="outline">
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                Try Again
+              </Button>
+              <Button
+                onClick={async () => {
+                  await window.electronAPI.openLogs();
+                }}
+                size="sm"
+                variant="ghost"
+              >
+                <FolderOpen className="h-3.5 w-3.5 mr-1.5" />
+                Open Logs
+              </Button>
             </div>
           </div>
         )}

@@ -9,7 +9,8 @@ import type {
   ImplementationPlan,
   TaskMetadata,
   TaskLogs,
-  TaskLogStreamChunk
+  TaskLogStreamChunk,
+  QAQuestion
 } from '../../shared/types';
 
 export interface TaskAPI {
@@ -53,6 +54,10 @@ export interface TaskAPI {
   archiveTasks: (projectId: string, taskIds: string[], version?: string) => Promise<IPCResult<boolean>>;
   unarchiveTasks: (projectId: string, taskIds: string[]) => Promise<IPCResult<boolean>>;
 
+  // QA Clarifying Questions
+  getQAQuestion: (taskId: string) => Promise<IPCResult<QAQuestion | null>>;
+  submitQAAnswer: (taskId: string, answer: string) => Promise<IPCResult>;
+
   // Task Event Listeners
   onTaskProgress: (callback: (taskId: string, plan: ImplementationPlan) => void) => () => void;
   onTaskError: (callback: (taskId: string, error: string) => void) => () => void;
@@ -68,6 +73,11 @@ export interface TaskAPI {
   unwatchTaskLogs: (specId: string) => Promise<IPCResult>;
   onTaskLogsChanged: (callback: (specId: string, logs: TaskLogs) => void) => () => void;
   onTaskLogsStream: (callback: (specId: string, chunk: TaskLogStreamChunk) => void) => () => void;
+
+  // Audio Transcription
+  transcribeAudio: (audioBlob: Blob) => Promise<IPCResult<{ text: string }>>;
+  checkAudioModel: () => Promise<IPCResult<boolean>>;
+  downloadAudioModel: () => Promise<IPCResult<boolean>>;
 }
 
 export const createTaskAPI = (): TaskAPI => ({
@@ -144,6 +154,13 @@ export const createTaskAPI = (): TaskAPI => ({
 
   unarchiveTasks: (projectId: string, taskIds: string[]): Promise<IPCResult<boolean>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_UNARCHIVE, projectId, taskIds),
+
+  // QA Clarifying Questions
+  getQAQuestion: (taskId: string): Promise<IPCResult<QAQuestion | null>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_GET_QA_QUESTION, taskId),
+
+  submitQAAnswer: (taskId: string, answer: string): Promise<IPCResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_SUBMIT_QA_ANSWER, taskId, answer),
 
   // Task Event Listeners
   onTaskProgress: (
@@ -266,5 +283,19 @@ export const createTaskAPI = (): TaskAPI => ({
     return () => {
       ipcRenderer.removeListener(IPC_CHANNELS.TASK_LOGS_STREAM, handler);
     };
-  }
+  },
+
+  // Audio Transcription
+  transcribeAudio: async (audioBlob: Blob): Promise<IPCResult<{ text: string }>> => {
+    // Convert Blob to ArrayBuffer, then to Uint8Array
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    return ipcRenderer.invoke(IPC_CHANNELS.AUDIO_TRANSCRIBE, uint8Array);
+  },
+
+  checkAudioModel: (): Promise<IPCResult<boolean>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.AUDIO_CHECK_MODEL),
+
+  downloadAudioModel: (): Promise<IPCResult<boolean>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.AUDIO_DOWNLOAD_MODEL)
 });

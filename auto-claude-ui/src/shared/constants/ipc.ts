@@ -36,6 +36,10 @@ export const IPC_CHANNELS = {
   TASK_ARCHIVE: 'task:archive',
   TASK_UNARCHIVE: 'task:unarchive',
 
+  // QA Clarifying Questions (awaiting_input flow)
+  TASK_GET_QA_QUESTION: 'task:getQAQuestion',       // Get pending QA question
+  TASK_SUBMIT_QA_ANSWER: 'task:submitQAAnswer',     // Submit user's answer and resume QA
+
   // Task events (main -> renderer)
   TASK_PROGRESS: 'task:progress',
   TASK_ERROR: 'task:error',
@@ -137,6 +141,20 @@ export const IPC_CHANNELS = {
   CONTEXT_MEMORY_STATUS: 'context:memoryStatus',
   CONTEXT_SEARCH_MEMORIES: 'context:searchMemories',
   CONTEXT_GET_MEMORIES: 'context:getMemories',
+  CONTEXT_GET_LOG_PATH: 'context:getLogPath',
+  CONTEXT_OPEN_LOGS: 'context:openLogs',
+
+  // Skills operations
+  SKILLS_DISCOVER: 'skills:discover',
+  SKILLS_CREATE: 'skills:create',
+  SKILLS_DISMISS: 'skills:dismiss',
+  SKILLS_ON_USAGE: 'skills:onUsage',  // Event: skill usage tracking (main -> renderer)
+
+  // Audio transcription operations
+  AUDIO_TRANSCRIBE: 'audio:transcribe',
+  AUDIO_CHECK_MODEL: 'audio:checkModel',
+  AUDIO_DOWNLOAD_MODEL: 'audio:downloadModel',
+  AUDIO_MODEL_PROGRESS: 'audio:modelProgress',  // Event: download progress (main -> renderer)
 
   // Environment configuration
   ENV_GET: 'env:get',
@@ -197,6 +215,12 @@ export const IPC_CHANNELS = {
   GITHUB_INVESTIGATION_PROGRESS: 'github:investigationProgress',
   GITHUB_INVESTIGATION_COMPLETE: 'github:investigationComplete',
   GITHUB_INVESTIGATION_ERROR: 'github:investigationError',
+
+  // Vercel integration
+  VERCEL_CHECK_CONNECTION: 'vercel:checkConnection',
+  VERCEL_GET_PROJECTS: 'vercel:getProjects',
+  VERCEL_GET_DEPLOYMENTS: 'vercel:getDeployments',
+  VERCEL_GET_PROJECT_INFO: 'vercel:getProjectInfo',
 
   // Docker & Infrastructure status
   DOCKER_STATUS: 'docker:status',
@@ -287,5 +311,24 @@ export const IPC_CHANNELS = {
   RELEASE_GET_VERSIONS: 'release:getVersions',
 
   // Release events (main -> renderer)
-  RELEASE_PROGRESS: 'release:progress'
+  RELEASE_PROGRESS: 'release:progress',
+
+  // Improvement operations
+  IMPROVEMENT_GET_METRICS: 'improvement:getMetrics',
+  IMPROVEMENT_GET_CARDS: 'improvement:getCards',
+  IMPROVEMENT_UPDATE_CARD: 'improvement:updateCard',
+  IMPROVEMENT_GET_GOALS: 'improvement:getGoals',
+  IMPROVEMENT_CREATE_GOAL: 'improvement:createGoal',
+  IMPROVEMENT_UPDATE_GOAL: 'improvement:updateGoal',
+  IMPROVEMENT_DELETE_GOAL: 'improvement:deleteGoal',
+  IMPROVEMENT_GET_PATTERNS: 'improvement:getPatterns',
+  IMPROVEMENT_GET_REFLECTIONS: 'improvement:getReflections',
+  IMPROVEMENT_RUN_LOOP: 'improvement:runLoop',
+  IMPROVEMENT_STOP_LOOP: 'improvement:stopLoop',
+  IMPROVEMENT_DISCOVER: 'improvement:discover',
+
+  // Improvement events (main -> renderer)
+  IMPROVEMENT_LOOP_STATUS: 'improvement:loopStatus',
+  IMPROVEMENT_CARDS_UPDATED: 'improvement:cardsUpdated',
+  IMPROVEMENT_METRICS_UPDATED: 'improvement:metricsUpdated'
 } as const;

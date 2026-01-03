@@ -11,6 +11,7 @@ import {
 import { useSettingsStore, saveSettings } from '../../stores/settings-store';
 import { SettingsSection } from './SettingsSection';
 import { Label } from '../ui/label';
+import { ThinkingLevelHelp } from '../ui/thinking-level-help';
 import { Button } from '../ui/button';
 import {
   Select,
@@ -267,7 +268,10 @@ export function AgentProfileSettings() {
                         </div>
                         {/* Thinking Level Select */}
                         <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">Thinking Level</Label>
+                          <div className="flex items-center gap-1.5">
+                            <Label className="text-xs text-muted-foreground">Thinking Level</Label>
+                            <ThinkingLevelHelp mode="inline" />
+                          </div>
                           <Select
                             value={currentPhaseThinking[phase]}
                             onValueChange={(value) => handlePhaseThinkingChange(phase, value as ThinkingLevel)}
@@ -277,9 +281,11 @@ export function AgentProfileSettings() {
                             </SelectTrigger>
                             <SelectContent>
                               {THINKING_LEVELS.map((level) => (
-                                <SelectItem key={level.value} value={level.value}>
-                                  {level.label}
-                                </SelectItem>
+                                <ThinkingLevelHelp key={level.value} mode="item" level={level.value}>
+                                  <SelectItem value={level.value}>
+                                    {level.label}
+                                  </SelectItem>
+                                </ThinkingLevelHelp>
                               ))}
                             </SelectContent>
                           </Select>

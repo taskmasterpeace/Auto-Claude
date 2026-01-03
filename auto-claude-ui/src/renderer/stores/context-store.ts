@@ -106,17 +106,55 @@ export async function loadProjectContext(projectId: string): Promise<void> {
   store.setMemoryError(null);
 
   try {
-    const result = await window.electronAPI.getProjectContext(projectId);
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Request timed out after 10 seconds')), 10000);
+    });
+
+    const result = await Promise.race([
+      window.electronAPI.getProjectContext(projectId),
+      timeoutPromise
+    ]);
+
     if (result.success && result.data) {
       store.setProjectIndex(result.data.projectIndex);
       store.setMemoryStatus(result.data.memoryStatus);
       store.setMemoryState(result.data.memoryState);
       store.setRecentMemories(result.data.recentMemories || []);
+
+      // If there's a warning/partial error, show it
+      if (result.error) {
+        store.setIndexError(result.error);
+      }
     } else {
-      store.setIndexError(result.error || 'Failed to load project context');
+      // Better error messages
+      let errorMsg = result.error || 'Failed to load project context';
+
+      // Add helpful context based on common errors
+      if (errorMsg.includes('Project not found')) {
+        errorMsg += '. The project may not be registered in Auto-Claude.';
+      } else if (errorMsg.includes('project_index.json')) {
+        errorMsg += ' Click "Analyze Project" to generate the index.';
+      } else if (errorMsg.includes('permission')) {
+        errorMsg += ' Check file permissions for the project directory.';
+      }
+
+      store.setIndexError(errorMsg);
     }
   } catch (error) {
-    store.setIndexError(error instanceof Error ? error.message : 'Unknown error');
+    let errorMsg = 'Failed to load project context';
+
+    if (error instanceof Error) {
+      errorMsg = error.message;
+
+      // Add context for timeout errors
+      if (errorMsg.includes('timed out')) {
+        errorMsg += '. This may indicate a problem with the backend or file system access.';
+      }
+    }
+
+    store.setIndexError(errorMsg);
+    console.error('[Context Store] Error loading project context:', error);
   } finally {
     store.setIndexLoading(false);
     store.setMemoryLoading(false);

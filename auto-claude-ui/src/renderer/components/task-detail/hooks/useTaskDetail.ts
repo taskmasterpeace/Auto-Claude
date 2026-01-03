@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useProjectStore } from '../../../stores/project-store';
 import { checkTaskRunning, isIncompleteHumanReview, getTaskProgress } from '../../../stores/task-store';
-import type { Task, TaskLogs, TaskLogPhase, WorktreeStatus, WorktreeDiff, MergeConflict, MergeStats, GitConflictInfo } from '../../../../shared/types';
+import type { Task, TaskLogs, TaskLogPhase, WorktreeStatus, WorktreeDiff, MergeConflict, MergeStats, GitConflictInfo, QAQuestion } from '../../../../shared/types';
 
 export interface UseTaskDetailOptions {
   task: Task;
@@ -47,9 +47,15 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [showConflictDialog, setShowConflictDialog] = useState(false);
 
+  // QA Clarifying Question state
+  const [qaQuestion, setQAQuestion] = useState<QAQuestion | null>(null);
+  const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
+  const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
+
   const selectedProject = useProjectStore((state) => state.getSelectedProject());
   const isRunning = task.status === 'in_progress' || task.status === 'ai_review';
   const needsReview = task.status === 'human_review';
+  const needsQAAnswer = task.status === 'awaiting_input' && task.reviewReason === 'qa_question';
   const executionPhase = task.executionProgress?.phase;
   const hasActiveExecution = executionPhase && executionPhase !== 'idle' && executionPhase !== 'complete' && executionPhase !== 'failed';
   const isIncomplete = isIncompleteHumanReview(task);
@@ -125,6 +131,48 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
       setWorktreeDiff(null);
     }
   }, [task.id, needsReview]);
+
+  // Load QA question when task is awaiting input for QA clarification
+  useEffect(() => {
+    if (needsQAAnswer) {
+      setIsLoadingQuestion(true);
+      window.electronAPI.getQAQuestion(task.id)
+        .then((result) => {
+          if (result.success && result.data) {
+            setQAQuestion(result.data);
+          } else {
+            setQAQuestion(null);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load QA question:', err);
+          setQAQuestion(null);
+        })
+        .finally(() => {
+          setIsLoadingQuestion(false);
+        });
+    } else {
+      setQAQuestion(null);
+    }
+  }, [task.id, needsQAAnswer]);
+
+  // Handle submitting answer to QA question
+  const submitQAAnswer = useCallback(async (answer: string) => {
+    setIsSubmittingAnswer(true);
+    try {
+      const result = await window.electronAPI.submitQAAnswer(task.id, answer);
+      if (result.success) {
+        setQAQuestion(null);
+        // Task status will change to in_progress via IPC event
+      } else {
+        console.error('Failed to submit QA answer:', result.error);
+      }
+    } catch (err) {
+      console.error('Error submitting QA answer:', err);
+    } finally {
+      setIsSubmittingAnswer(false);
+    }
+  }, [task.id]);
 
   // Load and watch phase logs
   useEffect(() => {
@@ -296,6 +344,10 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     mergePreview,
     isLoadingPreview,
     showConflictDialog,
+    needsQAAnswer,
+    qaQuestion,
+    isLoadingQuestion,
+    isSubmittingAnswer,
 
     // Setters
     setFeedback,
@@ -332,5 +384,6 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     handleLogsScroll,
     togglePhase,
     loadMergePreview,
+    submitQAAnswer,
   };
 }

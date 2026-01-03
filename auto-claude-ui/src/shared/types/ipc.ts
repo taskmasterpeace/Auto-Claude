@@ -597,6 +597,9 @@ export interface ElectronAPI {
   // Log path operations
   getLogPath: () => Promise<IPCResult<string>>;
   openLogs: () => Promise<IPCResult>;
+
+  // Self-improvement operations (nested API)
+  improvement: import('./improvement').ImprovementAPI;
 }
 
 declare global {
