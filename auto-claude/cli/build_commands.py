@@ -48,6 +48,14 @@ from .input_handlers import (
     read_multiline_input,
 )
 
+# Optional import for self-improvement reflection
+try:
+    from improvement import run_post_task_reflection
+    IMPROVEMENT_ENABLED = True
+except ImportError:
+    IMPROVEMENT_ENABLED = False
+    run_post_task_reflection = None
+
 
 def handle_build_command(
     project_dir: Path,
@@ -288,6 +296,20 @@ def handle_build_command(
                     debug_info(
                         "run.py", "Implementation plan synced to main project after QA"
                     )
+
+                # Run post-task reflection for self-improvement
+                if IMPROVEMENT_ENABLED and run_post_task_reflection:
+                    try:
+                        asyncio.run(
+                            run_post_task_reflection(
+                                spec_dir=spec_dir,
+                                project_dir=working_dir,
+                                success=qa_approved,
+                            )
+                        )
+                        debug_info("run.py", "Post-task reflection completed")
+                    except Exception as e:
+                        debug_info("run.py", f"Reflection skipped: {e}")
             except KeyboardInterrupt:
                 print("\n\nQA validation paused.")
                 print(f"Resume: python auto-claude/run.py --spec {spec_dir.name} --qa")
