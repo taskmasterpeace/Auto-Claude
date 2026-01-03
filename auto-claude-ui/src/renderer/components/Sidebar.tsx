@@ -16,7 +16,8 @@ import {
   FileText,
   Sparkles,
   GitBranch,
-  HelpCircle
+  HelpCircle,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
@@ -54,9 +55,10 @@ import { useSettingsStore } from '../stores/settings-store';
 import { AddProjectModal } from './AddProjectModal';
 import { GitSetupModal } from './GitSetupModal';
 import { RateLimitIndicator } from './RateLimitIndicator';
+import { IntegrationBadges } from './IntegrationBadges';
 import type { Project, AutoBuildVersionInfo, GitStatus } from '../../shared/types';
 
-export type SidebarView = 'kanban' | 'terminals' | 'roadmap' | 'context' | 'ideation' | 'github-issues' | 'changelog' | 'insights' | 'worktrees' | 'agent-tools';
+export type SidebarView = 'kanban' | 'terminals' | 'roadmap' | 'context' | 'ideation' | 'github-issues' | 'changelog' | 'insights' | 'worktrees' | 'agent-tools' | 'improvement';
 
 interface SidebarProps {
   onSettingsClick: () => void;
@@ -78,6 +80,7 @@ const projectNavItems: NavItem[] = [
   { id: 'insights', label: 'Insights', icon: Sparkles, shortcut: 'N' },
   { id: 'roadmap', label: 'Roadmap', icon: Map, shortcut: 'D' },
   { id: 'ideation', label: 'Ideation', icon: Lightbulb, shortcut: 'I' },
+  { id: 'improvement', label: 'Self-Improvement', icon: TrendingUp, shortcut: 'M' },
   { id: 'changelog', label: 'Changelog', icon: FileText, shortcut: 'L' },
   { id: 'context', label: 'Context', icon: BookOpen, shortcut: 'C' }
 ];
@@ -362,6 +365,8 @@ export function Sidebar({
               <span className="truncate block text-xs text-muted-foreground" title={selectedProject.path}>
                 {selectedProject.path}
               </span>
+              {/* Integration badges showing connected services */}
+              <IntegrationBadges projectId={selectedProject.id} />
             </div>
           )}
         </div>
