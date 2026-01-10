@@ -92,6 +92,27 @@ export class TranscriptionService {
   }
 
   /**
+   * Get file extension from mimeType
+   */
+  private getExtensionFromMimeType(mimeType: string): string {
+    const mimeToExt: Record<string, string> = {
+      'audio/webm': '.webm',
+      'audio/mp3': '.mp3',
+      'audio/mpeg': '.mp3',
+      'audio/wav': '.wav',
+      'audio/wave': '.wav',
+      'audio/x-wav': '.wav',
+      'audio/ogg': '.ogg',
+      'audio/mp4': '.m4a',
+      'audio/m4a': '.m4a',
+      'audio/x-m4a': '.m4a',
+      'audio/flac': '.flac',
+      'audio/aac': '.aac',
+    };
+    return mimeToExt[mimeType.toLowerCase()] || '.webm';
+  }
+
+  /**
    * Transcribe audio buffer
    */
   async transcribe(audioBuffer: Buffer, mimeType: string): Promise<TranscriptionResult> {
@@ -102,11 +123,12 @@ export class TranscriptionService {
       }
     }
 
-    // Create temp file for audio
+    // Create temp file for audio with correct extension
     const tempDir = path.join(app.getPath('temp'), 'auto-claude-audio');
     await fs.mkdir(tempDir, { recursive: true });
 
-    const tempAudioPath = path.join(tempDir, `audio-${Date.now()}.webm`);
+    const extension = this.getExtensionFromMimeType(mimeType);
+    const tempAudioPath = path.join(tempDir, `audio-${Date.now()}${extension}`);
 
     try {
       // Write audio buffer to temp file
