@@ -19,7 +19,6 @@ import type {
   Discovery,
   LoopResult,
   GoalCreationData,
-  CardStatus,
 } from '../../shared/types';
 import { projectStore } from '../project-store';
 

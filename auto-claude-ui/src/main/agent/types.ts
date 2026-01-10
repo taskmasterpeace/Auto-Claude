@@ -1,5 +1,4 @@
 import { ChildProcess } from 'child_process';
-import type { IdeationConfig } from '../../shared/types';
 
 /**
  * Agent-specific types for process and state management

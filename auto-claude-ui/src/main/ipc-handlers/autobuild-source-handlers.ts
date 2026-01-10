@@ -5,7 +5,7 @@ import type { IPCResult } from '../../shared/types';
 import path from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import type { AutoBuildSourceUpdateProgress, SourceEnvConfig, SourceEnvCheckResult } from '../../shared/types';
-import { checkForUpdates as checkSourceUpdates, downloadAndApplyUpdate, getBundledVersion, getEffectiveVersion, getEffectiveSourcePath } from '../auto-claude-updater';
+import { checkForUpdates as checkSourceUpdates, downloadAndApplyUpdate, getEffectiveVersion, getEffectiveSourcePath } from '../auto-claude-updater';
 import { debugLog } from '../../shared/utils/debug-logger';
 
 

@@ -12,8 +12,6 @@ import logging
 from pathlib import Path
 from typing import Literal
 
-from ui import print_status
-
 logger = logging.getLogger(__name__)
 
 
