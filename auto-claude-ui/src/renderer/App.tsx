@@ -19,6 +19,7 @@ import { Sidebar, type SidebarView } from './components/Sidebar';
 import { KanbanBoard } from './components/KanbanBoard';
 import { TaskDetailModal } from './components/task-detail/TaskDetailModal';
 import { TaskCreationWizard } from './components/TaskCreationWizard';
+import { BMADBuilderDialog } from './components/bmad/BMADBuilderDialog';
 import { AppSettingsDialog, type AppSection } from './components/settings/AppSettings';
 import type { ProjectSettingsSection } from './components/settings/ProjectSettingsContent';
 import { TerminalGrid } from './components/TerminalGrid';
@@ -60,6 +61,7 @@ export function App() {
   // UI State
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
+  const [isBMADBuilderOpen, setIsBMADBuilderOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [settingsInitialSection, setSettingsInitialSection] = useState<AppSection | undefined>(undefined);
   const [settingsInitialProjectSection, setSettingsInitialProjectSection] = useState<ProjectSettingsSection | undefined>(undefined);
@@ -381,6 +383,7 @@ export function App() {
         <Sidebar
           onSettingsClick={() => setIsSettingsDialogOpen(true)}
           onNewTaskClick={() => setIsNewTaskDialogOpen(true)}
+          onBMADBuilderClick={() => setIsBMADBuilderOpen(true)}
           activeView={activeView}
           onViewChange={setActiveView}
         />
@@ -496,11 +499,24 @@ export function App() {
 
         {/* Dialogs */}
         {selectedProjectId && (
-          <TaskCreationWizard
-            projectId={selectedProjectId}
-            open={isNewTaskDialogOpen}
-            onOpenChange={setIsNewTaskDialogOpen}
-          />
+          <>
+            <TaskCreationWizard
+              projectId={selectedProjectId}
+              open={isNewTaskDialogOpen}
+              onOpenChange={setIsNewTaskDialogOpen}
+            />
+
+            <BMADBuilderDialog
+              open={isBMADBuilderOpen}
+              onOpenChange={setIsBMADBuilderOpen}
+              projectPath={selectedProject?.path || ''}
+              onSpecGenerated={(specPath, spec) => {
+                console.log('BMAD spec generated:', specPath, spec);
+                // TODO: Show success toast and navigate to spec
+                setIsBMADBuilderOpen(false);
+              }}
+            />
+          </>
         )}
 
         <AppSettingsDialog
@@ -628,6 +644,10 @@ export function App() {
           onOpenTaskCreator={() => {
             setIsOnboardingWizardOpen(false);
             setIsNewTaskDialogOpen(true);
+          }}
+          onOpenBMADBuilder={() => {
+            setIsOnboardingWizardOpen(false);
+            setIsBMADBuilderOpen(true);
           }}
           onOpenSettings={() => {
             setIsOnboardingWizardOpen(false);

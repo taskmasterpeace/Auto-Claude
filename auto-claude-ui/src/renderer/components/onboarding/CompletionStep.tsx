@@ -4,7 +4,8 @@ import {
   FileText,
   Settings,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  DollarSign
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
@@ -12,6 +13,7 @@ import { Card, CardContent } from '../ui/card';
 interface CompletionStepProps {
   onFinish: () => void;
   onOpenTaskCreator?: () => void;
+  onOpenBMADBuilder?: () => void;
   onOpenSettings?: () => void;
 }
 
@@ -60,9 +62,17 @@ function NextStepCard({ icon, title, description, action, actionLabel }: NextSte
 export function CompletionStep({
   onFinish,
   onOpenTaskCreator,
+  onOpenBMADBuilder,
   onOpenSettings
 }: CompletionStepProps) {
   const nextSteps = [
+    {
+      icon: <DollarSign className="h-5 w-5" />,
+      title: 'Revenue-First Spec (Recommended)',
+      description: 'Build a business-focused spec with revenue projections, competitor analysis, and pricing strategy.',
+      action: onOpenBMADBuilder,
+      actionLabel: 'Open BMAD Builder'
+    },
     {
       icon: <FileText className="h-5 w-5" />,
       title: 'Create a Task',

@@ -20,6 +20,7 @@ interface OnboardingWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenTaskCreator?: () => void;
+  onOpenBMADBuilder?: () => void;
   onOpenSettings?: () => void;
 }
 
@@ -49,6 +50,7 @@ export function OnboardingWizard({
   open,
   onOpenChange,
   onOpenTaskCreator,
+  onOpenBMADBuilder,
   onOpenSettings
 }: OnboardingWizardProps) {
   const { updateSettings } = useSettingsStore();
@@ -126,6 +128,15 @@ export function OnboardingWizard({
     }
   }, [onOpenTaskCreator, onOpenChange]);
 
+  // Handle opening BMAD Builder from within wizard
+  const handleOpenBMADBuilder = useCallback(() => {
+    if (onOpenBMADBuilder) {
+      // Close wizard first, then open BMAD Builder
+      onOpenChange(false);
+      onOpenBMADBuilder();
+    }
+  }, [onOpenBMADBuilder, onOpenChange]);
+
   // Handle opening settings from completion step
   const handleOpenSettings = useCallback(() => {
     if (onOpenSettings) {
@@ -166,6 +177,7 @@ export function OnboardingWizard({
           <CompletionStep
             onFinish={finishWizard}
             onOpenTaskCreator={handleOpenTaskCreator}
+            onOpenBMADBuilder={handleOpenBMADBuilder}
             onOpenSettings={handleOpenSettings}
           />
         );

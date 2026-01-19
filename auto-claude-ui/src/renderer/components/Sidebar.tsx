@@ -17,7 +17,8 @@ import {
   Sparkles,
   GitBranch,
   HelpCircle,
-  TrendingUp
+  TrendingUp,
+  DollarSign
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
@@ -63,6 +64,7 @@ export type SidebarView = 'kanban' | 'terminals' | 'roadmap' | 'context' | 'idea
 interface SidebarProps {
   onSettingsClick: () => void;
   onNewTaskClick: () => void;
+  onBMADBuilderClick: () => void;
   activeView?: SidebarView;
   onViewChange?: (view: SidebarView) => void;
 }
@@ -93,6 +95,7 @@ const toolsNavItems: NavItem[] = [
 export function Sidebar({
   onSettingsClick,
   onNewTaskClick,
+  onBMADBuilderClick,
   activeView = 'kanban',
   onViewChange
 }: SidebarProps) {
@@ -444,6 +447,25 @@ export function Sidebar({
             <Plus className="mr-2 h-4 w-4" />
             New Task
           </Button>
+
+          {/* Revenue-First Spec button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={onBMADBuilderClick}
+                disabled={!selectedProjectId || !selectedProject?.autoBuildPath}
+              >
+                <DollarSign className="mr-2 h-4 w-4" />
+                Revenue-First Spec
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              Build a revenue-focused spec with competitor analysis and pricing strategy
+            </TooltipContent>
+          </Tooltip>
+
           {selectedProject && !selectedProject.autoBuildPath && (
             <p className="mt-2 text-xs text-muted-foreground text-center">
               Initialize Auto Claude to create tasks
