@@ -50,49 +50,49 @@ import { SuccessMetricsForm } from './forms/SuccessMetricsForm';
  */
 const INITIAL_CATEGORIES: BMADCategory[] = [
   {
-    id: 'revenue-model',
+    id: 'revenue_model',
     name: 'Revenue Model',
     description: 'How will this feature generate revenue?',
     completed: false,
     answers: {}
   },
   {
-    id: 'target-market',
+    id: 'target_market',
     name: 'Target Market',
     description: 'Who will pay for this feature?',
     completed: false,
     answers: {}
   },
   {
-    id: 'competitor-analysis',
+    id: 'competitors',
     name: 'Competitor Analysis',
     description: 'What are competitors charging?',
     completed: false,
     answers: {}
   },
   {
-    id: 'feature-scope',
+    id: 'features',
     name: 'Feature Scope',
     description: 'What exactly are you building?',
     completed: false,
     answers: {}
   },
   {
-    id: 'pricing-strategy',
+    id: 'pricing',
     name: 'Pricing Strategy',
     description: 'How much will you charge?',
     completed: false,
     answers: {}
   },
   {
-    id: 'implementation-plan',
+    id: 'implementation',
     name: 'Implementation Plan',
     description: 'Build vs buy decisions',
     completed: false,
     answers: {}
   },
   {
-    id: 'success-metrics',
+    id: 'validation',
     name: 'Success Metrics',
     description: 'How will you measure success?',
     completed: false,
@@ -112,7 +112,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
 }) => {
   // State
   const [categories, setCategories] = useState<BMADCategory[]>(INITIAL_CATEGORIES);
-  const [currentCategoryId, setCurrentCategoryId] = useState<BMADCategoryId>('revenue-model');
+  const [currentCategoryId, setCurrentCategoryId] = useState<BMADCategoryId>('revenue_model');
   const [currentCategoryValid, setCurrentCategoryValid] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +126,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
   useEffect(() => {
     if (open) {
       setCategories(INITIAL_CATEGORIES);
-      setCurrentCategoryId('revenue-model');
+      setCurrentCategoryId('revenue_model');
       setCurrentCategoryValid(false);
       setError(null);
       setIsGenerating(false);
@@ -237,7 +237,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
    */
   const renderCurrentForm = () => {
     switch (currentCategoryId) {
-      case 'revenue-model':
+      case 'revenue_model':
         return (
           <RevenueModelForm
             answers={currentCategory.answers as RevenueModelAnswers}
@@ -247,7 +247,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
           />
         );
 
-      case 'target-market':
+      case 'target_market':
         return (
           <TargetMarketForm
             answers={currentCategory.answers as TargetMarketAnswers}
@@ -257,7 +257,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
           />
         );
 
-      case 'competitor-analysis':
+      case 'competitors':
         return (
           <CompetitorAnalysisForm
             answers={currentCategory.answers as CompetitorAnalysisAnswers}
@@ -267,7 +267,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
           />
         );
 
-      case 'feature-scope':
+      case 'features':
         return (
           <FeatureScopeForm
             answers={currentCategory.answers as FeatureScopeAnswers}
@@ -277,7 +277,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
           />
         );
 
-      case 'pricing-strategy':
+      case 'pricing':
         return (
           <PricingStrategyForm
             answers={currentCategory.answers as PricingStrategyAnswers}
@@ -287,7 +287,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
           />
         );
 
-      case 'implementation-plan':
+      case 'implementation':
         return (
           <ImplementationPlanForm
             answers={currentCategory.answers as ImplementationPlanAnswers}
@@ -297,7 +297,7 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
           />
         );
 
-      case 'success-metrics':
+      case 'validation':
         return (
           <SuccessMetricsForm
             answers={currentCategory.answers as SuccessMetricsAnswers}

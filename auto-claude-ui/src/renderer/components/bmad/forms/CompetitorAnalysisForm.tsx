@@ -7,6 +7,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 /**
+ * Simple URL validation helper
+ */
+const isValidUrl = (url: string): boolean => {
+  if (!url) return true; // Empty URLs are optional
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Competitor Analysis Form
  * Collects information about competitors and their pricing
  */
@@ -18,6 +31,7 @@ export const CompetitorAnalysisForm: React.FC<CategoryFormProps<CompetitorAnalys
 }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [newCompetitor, setNewCompetitor] = useState({ name: '', url: '', pricePoint: 0 });
+  const [urlError, setUrlError] = useState<string>('');
 
   // Initialize with default values if empty
   useEffect(() => {
@@ -28,6 +42,8 @@ export const CompetitorAnalysisForm: React.FC<CategoryFormProps<CompetitorAnalys
         keyDifferentiators: ''
       });
     }
+    // Only run on initial mount to set defaults
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Validate form
@@ -58,6 +74,12 @@ export const CompetitorAnalysisForm: React.FC<CategoryFormProps<CompetitorAnalys
   };
 
   const handleAddCompetitor = () => {
+    // Validate URL if provided
+    if (newCompetitor.url && !isValidUrl(newCompetitor.url)) {
+      setUrlError('Please enter a valid URL (e.g., https://example.com)');
+      return;
+    }
+
     if (newCompetitor.name.trim() && newCompetitor.pricePoint > 0) {
       const updatedCompetitors = [
         ...(answers.competitors || []),
@@ -70,6 +92,7 @@ export const CompetitorAnalysisForm: React.FC<CategoryFormProps<CompetitorAnalys
       handleFieldChange('averageMarketPrice', Math.round(avgPrice));
 
       setNewCompetitor({ name: '', url: '', pricePoint: 0 });
+      setUrlError('');
     }
   };
 
@@ -139,12 +162,27 @@ export const CompetitorAnalysisForm: React.FC<CategoryFormProps<CompetitorAnalys
               placeholder="Competitor name"
               disabled={disabled}
             />
-            <Input
-              value={newCompetitor.url}
-              onChange={(e) => setNewCompetitor({ ...newCompetitor, url: e.target.value })}
-              placeholder="Website URL (optional)"
-              disabled={disabled}
-            />
+            <div>
+              <Input
+                value={newCompetitor.url}
+                onChange={(e) => {
+                  const url = e.target.value;
+                  setNewCompetitor({ ...newCompetitor, url });
+                  // Validate URL on change
+                  if (url && !isValidUrl(url)) {
+                    setUrlError('Invalid URL format');
+                  } else {
+                    setUrlError('');
+                  }
+                }}
+                placeholder="Website URL (optional)"
+                disabled={disabled}
+                className={urlError ? 'border-destructive' : ''}
+              />
+              {urlError && (
+                <p className="text-xs text-destructive mt-1">{urlError}</p>
+              )}
+            </div>
             <Input
               type="number"
               value={newCompetitor.pricePoint || ''}
@@ -155,7 +193,7 @@ export const CompetitorAnalysisForm: React.FC<CategoryFormProps<CompetitorAnalys
             />
             <Button
               onClick={handleAddCompetitor}
-              disabled={!newCompetitor.name.trim() || newCompetitor.pricePoint <= 0 || disabled}
+              disabled={!newCompetitor.name.trim() || newCompetitor.pricePoint <= 0 || !!urlError || disabled}
               size="sm"
               className="w-full"
             >

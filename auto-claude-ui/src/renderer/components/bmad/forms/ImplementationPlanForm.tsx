@@ -35,6 +35,8 @@ export const ImplementationPlanForm: React.FC<CategoryFormProps<ImplementationPl
         technicalRequirements: ''
       });
     }
+    // Only run on initial mount to set defaults
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Validate form

@@ -108,8 +108,11 @@ export const FormField: React.FC<FormFieldProps> = ({
             id={name}
             name={name}
             type="number"
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value ? Number(e.target.value) : '')}
+            value={value === 0 ? '0' : (value || '')}
+            onChange={(e) => {
+              const val = e.target.value;
+              onChange(val === '' ? 0 : Number(val));
+            }}
             placeholder={placeholder}
             disabled={disabled}
             className={error ? 'border-destructive' : ''}

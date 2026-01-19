@@ -29,7 +29,9 @@ export const TargetMarketForm: React.FC<CategoryFormProps<TargetMarketAnswers>> 
         customerPainPoints: []
       });
     }
-  }, []);
+    // Only run when answers.customerSegment changes from undefined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers.customerSegment]);
 
   // Validate form
   useEffect(() => {

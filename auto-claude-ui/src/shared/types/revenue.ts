@@ -8,13 +8,13 @@
 // ============================================================================
 
 export type BMADCategoryId =
-  | 'revenue-model'
-  | 'target-market'
-  | 'competitor-analysis'
-  | 'feature-scope'
-  | 'pricing-strategy'
-  | 'implementation-plan'
-  | 'success-metrics';
+  | 'revenue_model'
+  | 'target_market'
+  | 'competitors'
+  | 'features'
+  | 'pricing'
+  | 'implementation'
+  | 'validation';
 
 export interface BMADCategory {
   id: BMADCategoryId;

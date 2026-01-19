@@ -38,6 +38,8 @@ export const SuccessMetricsForm: React.FC<CategoryFormProps<SuccessMetricsAnswer
         secondaryMetrics: []
       });
     }
+    // Only run on initial mount to set defaults
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Validate form

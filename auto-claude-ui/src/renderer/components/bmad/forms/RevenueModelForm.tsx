@@ -39,7 +39,9 @@ export const RevenueModelForm: React.FC<CategoryFormProps<RevenueModelAnswers>> 
         timeframe: '30-days'
       });
     }
-  }, []);
+    // Only run when answers.revenueType changes from undefined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers.revenueType]);
 
   // Validate form
   useEffect(() => {

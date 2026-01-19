@@ -29,6 +29,8 @@ export const FeatureScopeForm: React.FC<CategoryFormProps<FeatureScopeAnswers>> 
         coreValue: ''
       });
     }
+    // Only run on initial mount to set defaults
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Validate form
