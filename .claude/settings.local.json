@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\git\\\\Auto-Claude\\\\auto-claude\\\\requirements.txt\")",
+      "Bash(dir \"C:\\\\git\\\\Auto-Claude\\\\auto-claude-ui\\\\package.json\")",
+      "Bash(auto-claude.venvScriptspip.exe install -r auto-clauderequirements.txt)",
+      "Bash(C:/git/Auto-Claude/auto-claude/.venv/Scripts/pip.exe install:*)",
+      "Bash(C:/git/Auto-Claude/auto-claude/.venv/Scripts/pip.exe list)",
+      "Bash(C:/git/Auto-Claude/auto-claude/.venv/Scripts/python.exe:*)",
+      "Bash(docker run:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker rm:*)",
+      "Bash(falkordb/graphiti-knowledge-graph-mcp)",
+      "Bash(docker ps:*)"
+    ]
+  }
+}

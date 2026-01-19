@@ -41,9 +41,11 @@ class TestBaselineCapture:
         captured = file_tracker.capture_baselines("task-001", files, intent="Add auth")
 
         assert len(captured) == 1
-        assert "src/App.tsx" in captured
+        # Normalize path for cross-platform compatibility
+        captured_paths = {k.replace('\\', '/'): v for k, v in captured.items()}
+        assert "src/App.tsx" in captured_paths
 
-        evolution = captured["src/App.tsx"]
+        evolution = captured_paths["src/App.tsx"]
         assert evolution.baseline_commit is not None
         assert len(evolution.task_snapshots) == 1
         assert evolution.task_snapshots[0].task_id == "task-001"
@@ -67,8 +69,10 @@ class TestBaselineCapture:
         captured = file_tracker.capture_baselines("task-001", files)
 
         assert len(captured) == 2
-        assert "src/App.tsx" in captured
-        assert "src/utils.py" in captured
+        # Normalize path for cross-platform compatibility
+        captured_paths = {k.replace('\\', '/'): v for k, v in captured.items()}
+        assert "src/App.tsx" in captured_paths
+        assert "src/utils.py" in captured_paths
 
 
 class TestModificationRecording:
@@ -147,9 +151,11 @@ class TestTaskModificationRetrieval:
 
         file_tasks = file_tracker.get_files_modified_by_tasks(["task-001", "task-002"])
 
-        assert "src/utils.py" in file_tasks
-        assert "task-001" in file_tasks["src/utils.py"]
-        assert "task-002" in file_tasks["src/utils.py"]
+        # Normalize path for cross-platform compatibility
+        file_tasks_normalized = {k.replace('\\', '/'): v for k, v in file_tasks.items()}
+        assert "src/utils.py" in file_tasks_normalized
+        assert "task-001" in file_tasks_normalized["src/utils.py"]
+        assert "task-002" in file_tasks_normalized["src/utils.py"]
 
 
 class TestConflictDetection:
@@ -170,7 +176,9 @@ class TestConflictDetection:
 
         conflicting = file_tracker.get_conflicting_files(["task-001", "task-002"])
 
-        assert "src/utils.py" in conflicting
+        # Normalize path for cross-platform compatibility
+        conflicting_normalized = [p.replace('\\', '/') for p in conflicting]
+        assert "src/utils.py" in conflicting_normalized
 
     def test_no_conflicts_different_files(self, file_tracker, temp_project):
         """No conflicts when tasks modify different files."""

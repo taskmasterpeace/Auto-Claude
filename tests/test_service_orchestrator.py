@@ -475,5 +475,6 @@ class TestEdgeCases:
 
         api = next((s for s in services if s.name == "api"), None)
         assert api is not None
-        assert api.path == "services/api"
+        # Normalize path for cross-platform compatibility
+        assert api.path.replace('\\', '/') == "services/api"
         assert api.type == "local"

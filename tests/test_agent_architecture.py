@@ -199,7 +199,7 @@ class TestProjectDocumentation:
     def test_no_parallel_cli_documented(self):
         """CLAUDE.md doesn't document --parallel flag."""
         claude_md_path = Path(__file__).parent.parent / "CLAUDE.md"
-        content = claude_md_path.read_text()
+        content = claude_md_path.read_text(encoding='utf-8')
 
         assert "--parallel 2" not in content, (
             "CLAUDE.md should not document --parallel flag"
@@ -208,7 +208,7 @@ class TestProjectDocumentation:
     def test_subagent_architecture_documented(self):
         """CLAUDE.md documents subagent-based architecture."""
         claude_md_path = Path(__file__).parent.parent / "CLAUDE.md"
-        content = claude_md_path.read_text()
+        content = claude_md_path.read_text(encoding='utf-8')
 
         has_subagent = "subagent" in content.lower()
         has_task_tool = "task tool" in content.lower()

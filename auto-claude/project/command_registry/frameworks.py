@@ -104,6 +104,7 @@ FRAMEWORK_COMMANDS: dict[str, set[str]] = {
     "playwright": {"playwright"},
     "cypress": {"cypress"},
     "puppeteer": {"puppeteer"},
+    "agent-browser": {"agent-browser", "npx"},
     "eslint": {"eslint"},
     "prettier": {"prettier"},
     "biome": {"biome"},
