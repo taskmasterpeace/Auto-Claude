@@ -337,5 +337,13 @@ export const IPC_CHANNELS = {
   // Improvement events (main -> renderer)
   IMPROVEMENT_LOOP_STATUS: 'improvement:loopStatus',
   IMPROVEMENT_CARDS_UPDATED: 'improvement:cardsUpdated',
-  IMPROVEMENT_METRICS_UPDATED: 'improvement:metricsUpdated'
+  IMPROVEMENT_METRICS_UPDATED: 'improvement:metricsUpdated',
+
+  // Revenue operations (BMAD builder)
+  REVENUE_GET_BMAD_CATEGORIES: 'revenue:get-bmad-categories',
+  REVENUE_SAVE_CATEGORY_ANSWERS: 'revenue:save-category-answers',
+  REVENUE_GENERATE_BMAD_SPEC: 'revenue:generate-bmad-spec',
+  REVENUE_GET_STATUS: 'revenue:get-status',
+  REVENUE_ANALYZE_BUSINESS: 'revenue:analyze-business',
+  REVENUE_FIND_OPPORTUNITIES: 'revenue:find-opportunities'
 } as const;

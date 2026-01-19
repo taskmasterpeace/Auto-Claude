@@ -1,0 +1,21 @@
+/**
+ * BMAD Builder Components
+ * Export index for revenue-first spec builder
+ */
+
+export { BMADBuilderDialog } from './BMADBuilderDialog';
+export { CategoryProgressIndicator } from './CategoryProgressIndicator';
+
+// Export forms
+export { RevenueModelForm } from './forms/RevenueModelForm';
+export { TargetMarketForm } from './forms/TargetMarketForm';
+export { CompetitorAnalysisForm } from './forms/CompetitorAnalysisForm';
+export { FeatureScopeForm } from './forms/FeatureScopeForm';
+export { PricingStrategyForm } from './forms/PricingStrategyForm';
+export { ImplementationPlanForm } from './forms/ImplementationPlanForm';
+export { SuccessMetricsForm } from './forms/SuccessMetricsForm';
+
+// Export shared components
+export { FormField } from './shared/FormField';
+export { CategoryHeader } from './shared/CategoryHeader';
+export { ValidationMessage } from './shared/ValidationMessage';

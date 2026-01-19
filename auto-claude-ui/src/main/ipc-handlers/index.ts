@@ -33,6 +33,7 @@ import { registerSkillDiscoveryHandlers } from './skill-discovery-handlers';
 import { registerSkillSettingsHandlers } from './skill-settings-handlers';
 import { registerAudioHandlers } from './audio-handlers';
 import { registerImprovementHandlers } from './improvement-handlers';
+import { registerRevenueHandlers } from './revenue-handlers';
 import { notificationService } from '../notification-service';
 
 /**
@@ -121,6 +122,9 @@ export function setupIpcHandlers(
   // Self-improvement handlers
   registerImprovementHandlers(getMainWindow);
 
+  // Revenue system handlers (BMAD builder)
+  registerRevenueHandlers();
+
   console.warn('[IPC] All handler modules registered successfully');
 }
 
@@ -146,5 +150,6 @@ export {
   registerAppUpdateHandlers,
   registerSkillDiscoveryHandlers,
   registerSkillSettingsHandlers,
-  registerImprovementHandlers
+  registerImprovementHandlers,
+  registerRevenueHandlers
 };
