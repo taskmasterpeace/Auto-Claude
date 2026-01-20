@@ -1,14 +1,18 @@
 /**
- * BMADBuilderDialog - Interactive wizard for building revenue-first specs
+ * BMADBuilderDialog - Interactive wizard for building comprehensive product specs
  *
  * Guides users through 7 categorized question flows to create a complete
- * Business Model, Audience, and Differentiators (BMAD) specification.
+ * product specification covering business model, target audience, market
+ * positioning, features, pricing, implementation, and success metrics.
+ *
+ * BMAD = Business Model, Audience, Differentiators (+ Implementation & Metrics)
  *
  * Features:
  * - 7-step wizard with visual progress indicator
  * - Category-specific forms with validation
  * - Previous/Next navigation with validation blocking
  * - IPC integration for spec generation
+ * - Works on new projects (no initialization required)
  * - Loading states and error handling
  */
 
@@ -52,49 +56,49 @@ const INITIAL_CATEGORIES: BMADCategory[] = [
   {
     id: 'revenue_model',
     name: 'Revenue Model',
-    description: 'How will this feature generate revenue?',
+    description: 'Define your business model and revenue goals',
     completed: false,
     answers: {}
   },
   {
     id: 'target_market',
     name: 'Target Market',
-    description: 'Who will pay for this feature?',
+    description: 'Identify your target audience and market opportunity',
     completed: false,
     answers: {}
   },
   {
     id: 'competitors',
     name: 'Competitor Analysis',
-    description: 'What are competitors charging?',
+    description: 'Research competitors and market positioning',
     completed: false,
     answers: {}
   },
   {
     id: 'features',
     name: 'Feature Scope',
-    description: 'What exactly are you building?',
+    description: 'Define what you're building and why',
     completed: false,
     answers: {}
   },
   {
     id: 'pricing',
     name: 'Pricing Strategy',
-    description: 'How much will you charge?',
+    description: 'Define your pricing model and value proposition',
     completed: false,
     answers: {}
   },
   {
     id: 'implementation',
     name: 'Implementation Plan',
-    description: 'Build vs buy decisions',
+    description: 'Plan your technical approach and timeline',
     completed: false,
     answers: {}
   },
   {
     id: 'validation',
     name: 'Success Metrics',
-    description: 'How will you measure success?',
+    description: 'Define how you'll measure and validate success',
     completed: false,
     answers: {}
   }
@@ -318,11 +322,11 @@ export const BMADBuilderDialog: React.FC<BMADBuilderDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <DollarSign className="h-5 w-5" />
-            Build Revenue-First Spec
+            Business Spec Builder
           </DialogTitle>
           <DialogDescription>
-            Create a comprehensive BMAD (Business Model, Audience, Differentiators) specification
-            by answering questions across 7 key categories.
+            Create a comprehensive product specification covering business model, target audience,
+            market positioning, feature scope, pricing, implementation, and success metrics.
           </DialogDescription>
         </DialogHeader>
 

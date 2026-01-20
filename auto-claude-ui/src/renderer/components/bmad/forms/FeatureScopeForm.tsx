@@ -88,7 +88,7 @@ export const FeatureScopeForm: React.FC<CategoryFormProps<FeatureScopeAnswers>> 
     <div>
       <CategoryHeader
         title="Feature Scope"
-        description="Define what you're building and its core capabilities"
+        description="Define what you're building, core capabilities, and the value it provides"
       />
 
       <div className="space-y-4">

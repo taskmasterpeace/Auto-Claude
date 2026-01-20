@@ -32,7 +32,7 @@ describe('BMAD Builder Smoke Test', () => {
       />
     );
 
-    expect(screen.getByText('Build Revenue-First Spec')).toBeInTheDocument();
+    expect(screen.getByText('Business Spec Builder')).toBeInTheDocument();
   });
 
   it('should render first category (Revenue Model)', () => {

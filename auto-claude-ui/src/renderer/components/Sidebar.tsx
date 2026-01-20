@@ -448,21 +448,21 @@ export function Sidebar({
             New Task
           </Button>
 
-          {/* Revenue-First Spec button */}
+          {/* Business Spec Builder button */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 className="w-full"
                 variant="outline"
                 onClick={onBMADBuilderClick}
-                disabled={!selectedProjectId || !selectedProject?.autoBuildPath}
+                disabled={!selectedProjectId}
               >
                 <DollarSign className="mr-2 h-4 w-4" />
-                Revenue-First Spec
+                Business Spec
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
-              Build a revenue-focused spec with competitor analysis and pricing strategy
+              Build a comprehensive product spec with market analysis, pricing strategy, and success metrics
             </TooltipContent>
           </Tooltip>
 

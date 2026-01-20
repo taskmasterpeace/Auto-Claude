@@ -184,7 +184,7 @@ test('App.tsx wires up onboarding BMAD Builder callback', () => {
 test('Sidebar.tsx has BMAD Builder button', () => {
   const content = readFile('src/renderer/components/Sidebar.tsx');
   assertContains(content, 'onBMADBuilderClick');
-  assertContains(content, 'Revenue-First Spec');
+  assertContains(content, 'Business Spec');
   assertContains(content, '<DollarSign');
 });
 
@@ -202,7 +202,7 @@ test('OnboardingWizard passes BMAD Builder to CompletionStep', () => {
 test('CompletionStep shows BMAD Builder as first option', () => {
   const content = readFile('src/renderer/components/onboarding/CompletionStep.tsx');
   assertContains(content, 'DollarSign');
-  assertContains(content, 'Revenue-First Spec (Recommended)');
+  assertContains(content, 'Business Spec Builder (Recommended)');
   assertContains(content, 'onOpenBMADBuilder');
 });
 

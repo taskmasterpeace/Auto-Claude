@@ -125,7 +125,7 @@ export const SuccessMetricsForm: React.FC<CategoryFormProps<SuccessMetricsAnswer
     <div>
       <CategoryHeader
         title="Success Metrics"
-        description="Define how you'll measure success with specific targets"
+        description="Define how you'll measure success and validate your product achieves its goals"
       />
 
       <div className="space-y-4">

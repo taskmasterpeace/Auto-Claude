@@ -1,18 +1,20 @@
 # BMAD Builder UI Component
 
-Interactive wizard for building revenue-first specifications through 7 categorized question flows.
+Interactive wizard for building comprehensive product specifications with business thinking built in.
 
 ## Overview
 
-The BMAD (Business Model, Audience, Differentiators) Builder guides users through creating comprehensive revenue-focused specs by collecting information across 7 key categories:
+The BMAD (Business Model, Audience, Differentiators) Builder guides users through creating complete product specs by collecting information across 7 key categories:
 
-1. **Revenue Model** - How the feature generates revenue
-2. **Target Market** - Customer segment and market size
-3. **Competitor Analysis** - Competitive landscape and pricing
-4. **Feature Scope** - What's being built
-5. **Pricing Strategy** - Pricing structure and discounts
-6. **Implementation Plan** - Build approach and timeline
-7. **Success Metrics** - Measurement and targets
+1. **Revenue Model** - Business model and revenue goals
+2. **Target Market** - Target audience and market opportunity
+3. **Competitor Analysis** - Market positioning and competitive landscape
+4. **Feature Scope** - What you're building and why
+5. **Pricing Strategy** - Pricing model and value proposition
+6. **Implementation Plan** - Technical approach and timeline
+7. **Success Metrics** - How you'll measure success
+
+**This is a PRD (Product Requirements Document) with business intelligence.** It helps you think through not just WHAT to build, but WHO it's for, WHY they'll pay, and HOW you'll measure success.
 
 ## Installation & Integration
 
@@ -45,7 +47,7 @@ Example:
 ```tsx
 <Button onClick={() => setShowBMADBuilder(true)}>
   <DollarSign className="mr-2 h-4 w-4" />
-  Build Revenue-First Spec
+  Business Spec
 </Button>
 ```
 
@@ -90,7 +92,7 @@ Example:
   </Button>
   <Button onClick={() => setShowBMADBuilder(true)} variant="secondary">
     <DollarSign className="mr-2 h-4 w-4" />
-    Revenue-First Spec
+    Business Spec
   </Button>
 </div>
 ```
@@ -124,7 +126,7 @@ Example:
     </DropdownMenuItem>
     <DropdownMenuItem onClick={() => setShowBMADBuilder(true)}>
       <DollarSign className="mr-2 h-4 w-4" />
-      Revenue-First (BMAD)
+      Business Spec (BMAD)
     </DropdownMenuItem>
   </DropdownMenuContent>
 </DropdownMenu>

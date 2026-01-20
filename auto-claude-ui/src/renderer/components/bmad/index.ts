@@ -1,6 +1,6 @@
 /**
  * BMAD Builder Components
- * Export index for revenue-first spec builder
+ * Export index for business spec builder (PRD with business intelligence)
  */
 
 export { BMADBuilderDialog } from './BMADBuilderDialog';

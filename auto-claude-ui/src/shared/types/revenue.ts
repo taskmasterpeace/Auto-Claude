@@ -1,6 +1,6 @@
 /**
  * BMAD (Business Model, Audience, Differentiators) Builder Types
- * Types for the revenue-first spec builder UI component
+ * Types for the business spec builder UI component (PRD with business intelligence)
  */
 
 // ============================================================================

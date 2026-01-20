@@ -78,7 +78,7 @@ export const RevenueModelForm: React.FC<CategoryFormProps<RevenueModelAnswers>> 
     <div>
       <CategoryHeader
         title="Revenue Model"
-        description="Define how this feature will generate revenue for your business"
+        description="Define your business model and revenue goals for this feature"
       />
 
       <div className="space-y-4">

@@ -90,7 +90,7 @@ export const ImplementationPlanForm: React.FC<CategoryFormProps<ImplementationPl
     <div>
       <CategoryHeader
         title="Implementation Plan"
-        description="Define your build strategy and technical requirements"
+        description="Define your technical approach, timeline, and build-vs-buy decisions"
       />
 
       <div className="space-y-4">

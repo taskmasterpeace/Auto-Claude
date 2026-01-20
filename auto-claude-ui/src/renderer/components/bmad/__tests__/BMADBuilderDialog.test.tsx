@@ -34,12 +34,12 @@ describe('BMADBuilderDialog', () => {
   describe('Initialization', () => {
     it('should render when open', () => {
       render(<BMADBuilderDialog {...defaultProps} />);
-      expect(screen.getByText('Build Revenue-First Spec')).toBeInTheDocument();
+      expect(screen.getByText('Business Spec Builder')).toBeInTheDocument();
     });
 
     it('should not render when closed', () => {
       render(<BMADBuilderDialog {...defaultProps} open={false} />);
-      expect(screen.queryByText('Build Revenue-First Spec')).not.toBeInTheDocument();
+      expect(screen.queryByText('Business Spec Builder')).not.toBeInTheDocument();
     });
 
     it('should start with Revenue Model category', () => {
@@ -249,7 +249,7 @@ describe('BMADBuilderDialog', () => {
     it('should handle missing projectPath', () => {
       render(<BMADBuilderDialog {...defaultProps} projectPath="" />);
       // Should still render without errors
-      expect(screen.getByText('Build Revenue-First Spec')).toBeInTheDocument();
+      expect(screen.getByText('Business Spec Builder')).toBeInTheDocument();
     });
 
     it('should handle IPC timeout', async () => {

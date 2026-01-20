@@ -90,7 +90,7 @@ export const TargetMarketForm: React.FC<CategoryFormProps<TargetMarketAnswers>> 
     <div>
       <CategoryHeader
         title="Target Market"
-        description="Identify your target customer segment and understand their needs"
+        description="Define your target audience, market opportunity, and customer pain points"
       />
 
       <div className="space-y-4">

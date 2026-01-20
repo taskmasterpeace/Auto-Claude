@@ -68,10 +68,10 @@ export function CompletionStep({
   const nextSteps = [
     {
       icon: <DollarSign className="h-5 w-5" />,
-      title: 'Revenue-First Spec (Recommended)',
-      description: 'Build a business-focused spec with revenue projections, competitor analysis, and pricing strategy.',
+      title: 'Business Spec Builder (Recommended)',
+      description: 'Create a comprehensive product spec with market research, competitor analysis, pricing strategy, and success metrics.',
       action: onOpenBMADBuilder,
-      actionLabel: 'Open BMAD Builder'
+      actionLabel: 'Open Spec Builder'
     },
     {
       icon: <FileText className="h-5 w-5" />,

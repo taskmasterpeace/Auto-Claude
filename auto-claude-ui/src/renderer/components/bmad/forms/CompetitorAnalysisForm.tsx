@@ -113,7 +113,7 @@ export const CompetitorAnalysisForm: React.FC<CategoryFormProps<CompetitorAnalys
     <div>
       <CategoryHeader
         title="Competitor Analysis"
-        description="Understand your competitive landscape and pricing benchmarks"
+        description="Research your market position and understand what competitors offer"
       />
 
       <div className="space-y-4">

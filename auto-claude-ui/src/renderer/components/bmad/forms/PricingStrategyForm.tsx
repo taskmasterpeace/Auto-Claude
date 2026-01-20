@@ -100,7 +100,7 @@ export const PricingStrategyForm: React.FC<CategoryFormProps<PricingStrategyAnsw
     <div>
       <CategoryHeader
         title="Pricing Strategy"
-        description="Define your pricing structure and discount strategies"
+        description="Define your pricing model, value proposition, and monetization approach"
       />
 
       <div className="space-y-4">
