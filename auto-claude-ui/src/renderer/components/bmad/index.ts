@@ -19,3 +19,4 @@ export { SuccessMetricsForm } from './forms/SuccessMetricsForm';
 export { FormField } from './shared/FormField';
 export { CategoryHeader } from './shared/CategoryHeader';
 export { ValidationMessage } from './shared/ValidationMessage';
+export { GitHubRepoCard } from './shared/GitHubRepoCard';

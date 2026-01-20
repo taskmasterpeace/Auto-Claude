@@ -345,5 +345,6 @@ export const IPC_CHANNELS = {
   REVENUE_GENERATE_BMAD_SPEC: 'revenue:generate-bmad-spec',
   REVENUE_GET_STATUS: 'revenue:get-status',
   REVENUE_ANALYZE_BUSINESS: 'revenue:analyze-business',
-  REVENUE_FIND_OPPORTUNITIES: 'revenue:find-opportunities'
+  REVENUE_FIND_OPPORTUNITIES: 'revenue:find-opportunities',
+  REVENUE_SEARCH_GITHUB_STARTERS: 'revenue:search-github-starters'
 } as const;

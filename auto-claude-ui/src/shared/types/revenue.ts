@@ -74,11 +74,23 @@ export interface PricingStrategyAnswers {
   }>;
 }
 
+export interface GitHubStarterProject {
+  name: string;
+  fullName: string;
+  description: string;
+  stars: number;
+  license: string;
+  url: string;
+  language: string;
+  updatedAt: string;
+}
+
 export interface ImplementationPlanAnswers {
   buildApproach: 'mvp' | 'phased' | 'full-scope';
   estimatedEffortDays: number;
   dependencies: string[];
   technicalRequirements: string;
+  starterProject?: GitHubStarterProject;
 }
 
 export interface SuccessMetricsAnswers {

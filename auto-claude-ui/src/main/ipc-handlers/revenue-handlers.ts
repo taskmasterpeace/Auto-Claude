@@ -261,4 +261,67 @@ export function registerRevenueHandlers() {
       }
     }
   );
+
+  /**
+   * Search GitHub for starter projects (MIT/Apache/BSD licensed)
+   */
+  ipcMain.handle(
+    'revenue:search-github-starters',
+    async (_event, query: string, language?: string) => {
+      try {
+        // Build search query with license filter
+        const licenses = ['MIT', 'Apache-2.0', 'BSD-3-Clause', 'BSD-2-Clause'];
+        let searchQuery = `${query} stars:>100`;
+
+        // Add language filter if provided
+        if (language) {
+          searchQuery += ` language:${language}`;
+        }
+
+        // Search for repos with open licenses
+        const licenseQuery = licenses.map(l => `license:${l}`).join(' OR ');
+        searchQuery += ` (${licenseQuery})`;
+
+        // Use GitHub CLI to search
+        const { exec } = require('child_process');
+        const { promisify } = require('util');
+        const execAsync = promisify(exec);
+
+        const command = `gh search repos "${query}" --limit 10 --json fullName,description,stargazersCount,license,url,primaryLanguage,updatedAt --sort stars`;
+
+        const { stdout } = await execAsync(command);
+        const results = JSON.parse(stdout);
+
+        // Filter to only MIT/Apache/BSD licenses and map to our type
+        const starters = results
+          .filter((repo: any) => {
+            const license = repo.license?.name || repo.license?.key || '';
+            return licenses.some(l => license.toLowerCase().includes(l.toLowerCase()));
+          })
+          .map((repo: any) => ({
+            name: repo.fullName.split('/')[1],
+            fullName: repo.fullName,
+            description: repo.description || 'No description',
+            stars: repo.stargazersCount || 0,
+            license: repo.license?.name || repo.license?.key || 'Unknown',
+            url: repo.url || `https://github.com/${repo.fullName}`,
+            language: repo.primaryLanguage || 'Unknown',
+            updatedAt: repo.updatedAt || new Date().toISOString()
+          }))
+          .slice(0, 5); // Return top 5
+
+        return {
+          success: true,
+          data: starters
+        };
+      } catch (error: any) {
+        // If gh CLI not available or search fails, return empty array
+        console.error('[GitHub Search] Error:', error.message);
+        return {
+          success: true,
+          data: []
+        };
+      }
+    }
+  );
 }

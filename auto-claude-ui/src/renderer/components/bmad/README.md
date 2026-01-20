@@ -11,10 +11,23 @@ The BMAD (Business Model, Audience, Differentiators) Builder guides users throug
 3. **Competitor Analysis** - Market positioning and competitive landscape
 4. **Feature Scope** - What you're building and why
 5. **Pricing Strategy** - Pricing model and value proposition
-6. **Implementation Plan** - Technical approach and timeline
+6. **Implementation Plan** - Technical approach, timeline, **+ GitHub starter project search**
 7. **Success Metrics** - How you'll measure success
 
 **This is a PRD (Product Requirements Document) with business intelligence.** It helps you think through not just WHAT to build, but WHO it's for, WHY they'll pay, and HOW you'll measure success.
+
+### 🆕 GitHub Starter Project Search
+
+Category 6 (Implementation Plan) includes **GitHub search** to find existing open-source projects you can build upon instead of starting from scratch:
+
+- **Searches** public GitHub repos matching your technical requirements
+- **Filters** by MIT/Apache/BSD licenses (forkable)
+- **Ranks** by stars (100+ minimum for quality)
+- **Shows** repo details (stars, license, language, last update)
+- **Selects** one as your starting point
+- **Auto-reduces** effort estimate by 30% when using a starter
+
+**Smart approach:** Don't reinvent the wheel - build on existing battle-tested code!
 
 ## Installation & Integration
 

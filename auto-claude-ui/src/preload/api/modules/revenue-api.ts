@@ -5,6 +5,7 @@ import type {
   BMADGenerationResult,
   BMADCategoriesResult,
   BMADSaveResult,
+  GitHubStarterProject,
   IPCResult
 } from '../../../shared/types';
 import { invokeIpc } from './ipc-utils';
@@ -17,6 +18,9 @@ export interface RevenueAPI {
   getBMADCategories: () => Promise<IPCResult<BMADCategory[]>>;
   saveCategoryAnswers: (categoryId: string, answers: Record<string, any>) => Promise<IPCResult<void>>;
   generateBMADSpec: (projectPath: string, categories: BMADCategory[]) => Promise<IPCResult<BMADGenerationResult>>;
+
+  // GitHub starter project search
+  searchGitHubStarters: (query: string, language?: string) => Promise<IPCResult<GitHubStarterProject[]>>;
 
   // Revenue tracking and analysis
   getRevenueStatus: (projectPath: string, specId: string) => Promise<IPCResult<any>>;
@@ -37,6 +41,10 @@ export const createRevenueAPI = (): RevenueAPI => ({
 
   generateBMADSpec: (projectPath: string, categories: BMADCategory[]): Promise<IPCResult<BMADGenerationResult>> =>
     invokeIpc(IPC_CHANNELS.REVENUE_GENERATE_BMAD_SPEC, projectPath, categories),
+
+  // GitHub starter project search
+  searchGitHubStarters: (query: string, language?: string): Promise<IPCResult<GitHubStarterProject[]>> =>
+    invokeIpc(IPC_CHANNELS.REVENUE_SEARCH_GITHUB_STARTERS, query, language),
 
   // Revenue tracking and analysis
   getRevenueStatus: (projectPath: string, specId: string): Promise<IPCResult<any>> =>
