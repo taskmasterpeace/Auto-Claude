@@ -10,6 +10,8 @@ import json
 import re
 from pathlib import Path
 
+from bmad_utils import get_revenue_context_for_agent
+
 from .project_context import (
     detect_project_capabilities,
     get_mcp_tools_for_project,
@@ -62,6 +64,12 @@ The project root is the parent of auto-claude/. Implement code in the project ro
 ---
 
 """
+
+    # Inject BMAD revenue context if this is a revenue-first spec
+    revenue_context = get_revenue_context_for_agent(spec_dir)
+    if revenue_context:
+        spec_context += revenue_context + "\n\n---\n\n"
+
     return spec_context + prompt
 
 
@@ -120,6 +128,11 @@ After addressing this input, you may delete or clear the HUMAN_INPUT.md file.
 ---
 
 """
+
+    # Inject BMAD revenue context if this is a revenue-first spec
+    revenue_context = get_revenue_context_for_agent(spec_dir)
+    if revenue_context:
+        spec_context += revenue_context + "\n\n---\n\n"
 
     return spec_context + prompt
 
@@ -371,6 +384,44 @@ The project root is: `{project_dir}`
         )
 
     spec_context += "---\n\n"
+
+    # Inject BMAD revenue context if this is a revenue-first spec
+    revenue_context = get_revenue_context_for_agent(spec_dir)
+    if revenue_context:
+        spec_context += revenue_context + "\n\n"
+
+        # Add explicit revenue validation requirements for QA
+        spec_context += """## 💰 REVENUE VALIDATION REQUIREMENTS (BMAD)
+
+Since this is a revenue-generating feature, you MUST validate:
+
+**1. Telemetry & Tracking:**
+- Analytics/tracking code is implemented and working
+- User actions are being logged (signups, conversions, usage)
+- Revenue attribution is possible (can track which users pay for this feature)
+
+**2. Feature Parity:**
+- Feature matches competitor offerings (check spec for competitor analysis)
+- All monetizable aspects are implemented
+- Feature justifies the pricing in the spec
+
+**3. Conversion Funnel:**
+- Feature discovery is clear (users can find it)
+- Upgrade/paywall prompts are present and working
+- Payment integration works (if applicable)
+- Users understand the value proposition
+
+**4. Revenue Tracking:**
+- The feature is configured to track revenue (check revenue_tracking.json)
+- Metrics needed for milestone validation are measurable
+- Dashboard/reporting shows feature adoption
+
+**CRITICAL**: If telemetry or revenue tracking is missing, this is a FAIL.
+Revenue features must be measurable from day one.
+
+---
+
+"""
 
     # Find injection point in base prompt (after PHASE 4, before PHASE 5)
     injection_marker = (

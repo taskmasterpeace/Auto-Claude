@@ -21,6 +21,8 @@ from pathlib import Path
 from core.client import create_client
 from agents.coder import run_agent_session
 from debug import debug, debug_error, debug_section, debug_success, debug_warning
+from bmad_utils import get_revenue_status, is_bmad_spec
+from ui import box, bold, highlight, muted, icon, Icons
 
 
 def evaluate_promise(
@@ -274,3 +276,97 @@ def handle_simple_command(
     )
 
     sys.exit(0 if success else 1)
+
+
+def handle_revenue_status(project_dir: Path, spec_name: str) -> None:
+    """
+    Handle the --revenue-status CLI command.
+
+    Shows revenue tracking status for a BMAD spec, including:
+    - Predicted vs actual revenue
+    - Milestone progress
+    - ROI metrics
+    """
+    # Resolve spec directory
+    specs_dir = project_dir / ".auto-claude" / "specs"
+
+    # Find the spec directory (handle both "001" and "001-feature-name" formats)
+    spec_dir = None
+    for candidate in specs_dir.glob(f"{spec_name}*"):
+        if candidate.is_dir():
+            spec_dir = candidate
+            break
+
+    if not spec_dir:
+        print(f"\n❌ Error: Spec '{spec_name}' not found in {specs_dir}")
+        sys.exit(1)
+
+    # Check if it's a BMAD spec
+    if not is_bmad_spec(spec_dir):
+        print(f"\n❌ Error: Spec '{spec_dir.name}' is not a BMAD (revenue-tracking) spec")
+        print("\nBMAD specs are created via:")
+        print("  python -m revenue.bmad_integration --opportunity-file ... --business-file ...")
+        sys.exit(1)
+
+    # Get revenue status
+    status = get_revenue_status(spec_dir)
+    if not status:
+        print(f"\n❌ Error: Could not load revenue status from {spec_dir}")
+        sys.exit(1)
+
+    # Display revenue status
+    print()
+
+    predicted_monthly = f"${status['predicted_monthly']:,.2f}"
+    roi_score = f"${status['roi_score']:,.2f}"
+
+    content = [
+        bold(f"{icon(Icons.MONEY)} REVENUE TRACKING STATUS"),
+        "",
+        f"Spec: {highlight(spec_dir.name)}",
+        f"Feature: {status['feature']}",
+        f"Status: {status['status'].upper()}",
+        "",
+        bold("Revenue Projections:"),
+        f"  Predicted Monthly: {highlight(predicted_monthly)}",
+        f"  ROI Score: {highlight(roi_score)} per day",
+        f"  Implementation Effort: {status['implementation_effort_days']:.1f} days",
+        "",
+        bold("Milestone Progress:"),
+    ]
+
+    # Add milestone details
+    for milestone in status['milestones']:
+        period = milestone['period'].replace('_', '-')
+        target = milestone['target']
+        actual = milestone['actual']
+        progress = milestone['progress_pct']
+        achieved = milestone['achieved']
+
+        status_icon = "✅" if achieved else "⏳"
+        progress_bar = "█" * int(progress / 10) + "░" * (10 - int(progress / 10))
+
+        content.append(f"  {status_icon} {period}: ${actual:,.2f} / ${target:,.2f} ({progress:.1f}%)")
+        content.append(f"     [{progress_bar}]")
+
+    # Calculate overall progress
+    total_target = sum(m['target'] for m in status['milestones'])
+    total_actual = sum(m['actual'] for m in status['milestones'])
+    overall_progress = (total_actual / total_target * 100) if total_target > 0 else 0
+
+    overall_progress_str = f"{overall_progress:.1f}%"
+
+    content.extend([
+        "",
+        bold("Overall Progress:"),
+        f"  Total Revenue: ${total_actual:,.2f} / ${total_target:,.2f}",
+        f"  Progress: {highlight(overall_progress_str)}",
+        "",
+        muted("To update revenue milestones:"),
+        muted(f"  Edit {spec_dir}/revenue_tracking.json"),
+    ])
+
+    print(box(content, width=70, style="heavy"))
+    print()
+
+    sys.exit(0)

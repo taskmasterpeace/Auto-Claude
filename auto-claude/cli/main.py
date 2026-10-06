@@ -310,6 +310,13 @@ Environment Variables:
         help="With --skills download: force re-download even if present",
     )
 
+    # Revenue tracking (BMAD) commands
+    parser.add_argument(
+        "--revenue-status",
+        action="store_true",
+        help="Show revenue tracking status for a BMAD spec",
+    )
+
     return parser.parse_args()
 
 
@@ -371,6 +378,19 @@ def main() -> None:
         else:
             # Assume it's a skill name for info
             handle_skill_info(cmd)
+        return
+
+    # Handle --revenue-status command
+    if args.revenue_status:
+        from .simple_commands import handle_revenue_status
+
+        if not args.spec:
+            print("\nError: --revenue-status requires --spec")
+            print("\nUsage:")
+            print("  python auto-claude/run.py --spec 001 --revenue-status")
+            sys.exit(1)
+
+        handle_revenue_status(project_dir=project_dir, spec_name=args.spec)
         return
 
     # Handle --simple mode (Ralph Wiggum-style autonomous loops)

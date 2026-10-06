@@ -38,8 +38,8 @@ fi
 # Check for completion promise in transcript (if set)
 if [[ -n "$COMPLETION_PROMISE" ]] && [[ "$COMPLETION_PROMISE" != "null" ]]; then
   # Read the transcript to check for promise
-  TRANSCRIPT_FILE="$CLAUDE_TRANSCRIPT_PATH"
-  if [[ -n "${TRANSCRIPT_FILE:-}" ]] && [[ -f "$TRANSCRIPT_FILE" ]]; then
+  TRANSCRIPT_FILE="${CLAUDE_TRANSCRIPT_PATH:-}"
+  if [[ -n "$TRANSCRIPT_FILE" ]] && [[ -f "$TRANSCRIPT_FILE" ]]; then
     # Look for <promise>PHRASE</promise> in the last assistant message
     LAST_RESPONSE=$(tail -100 "$TRANSCRIPT_FILE" 2>/dev/null | grep -o "<promise>[^<]*</promise>" | tail -1 || true)
     if [[ -n "$LAST_RESPONSE" ]]; then
